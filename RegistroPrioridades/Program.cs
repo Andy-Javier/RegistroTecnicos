@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using RegistroPrioridades.Components;
+using RegistroPrioridades.DAL;
 
 namespace RegistroPrioridades
 {
@@ -11,6 +13,12 @@ namespace RegistroPrioridades
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            //Obtenemos el ConStr para usarlo en el contexto
+            var ConStr = builder.Configuration.GetConnectionString("ConStar");
+
+            //Agregamos el contexto al builder con el ConStr
+            builder.Services.AddDbContext<Contexto>(Options => Options.UseSqlite(ConStr));
 
             var app = builder.Build();
 
