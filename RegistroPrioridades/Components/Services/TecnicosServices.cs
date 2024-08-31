@@ -42,5 +42,25 @@ namespace RegistroTecnicos.Components.Services
                 return await Modificar(Tecnico);
             }
         }
+        public async Task<bool> Eliminar(int id)
+        {
+            var Tecnicos = await _context.Tecnicos.
+                Where(T => T.TecnicosId == id).ExecuteDeleteAsync();
+            
+                return  Tecnicos > 0;        
+        }
+        public async Task<Tecnicos?> Buscar(int  id)
+        {
+            return await _context.Tecnicos.
+                AsNoTracking()
+                .FirstOrDefaultAsync(T => T.TecnicosId == id);
+        }
+        public List<Tecnicos> Listar(Expression<Func<Tecnicos, bool>> criterio)
+        {
+            return _context.Tecnicos.
+                AsNoTracking()
+                .Where(criterio)
+                .ToList();
+        }
     }
 }
