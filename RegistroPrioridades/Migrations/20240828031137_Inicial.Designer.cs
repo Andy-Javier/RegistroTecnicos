@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RegistroPrioridades.DAL;
+using RegistroTecnicos.DAL;
 
 #nullable disable
 
-namespace RegistroPrioridades.Migrations
+namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Contexto))]
     [Migration("20240828031137_Inicial")]
@@ -19,9 +19,9 @@ namespace RegistroPrioridades.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
 
-            modelBuilder.Entity("RegistroPrioridades.Models.Prioridades", b =>
+            modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
                 {
-                    b.Property<int>("PrioridadId")
+                    b.Property<int>("TecnicoId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -29,9 +29,9 @@ namespace RegistroPrioridades.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("PrioridadId");
+                    b.HasKey("TecnicoId");
 
-                    b.ToTable("Prioridades");
+                    b.ToTable("Tecnicos");
                 });
 #pragma warning restore 612, 618
         }

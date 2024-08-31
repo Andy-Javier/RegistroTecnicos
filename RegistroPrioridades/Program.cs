@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using RegistroPrioridades.Components;
-using RegistroPrioridades.DAL;
+using RegistroTecnicos.Components;
+using RegistroTecnicos.DAL;
 
-namespace RegistroPrioridades
+namespace RegistroTecnicos
 {
     public class Program
     {

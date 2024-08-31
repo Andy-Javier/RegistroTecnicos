@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RegistroPrioridades.Models
+namespace RegistroTecnicos.Models
 {
-
-public class Prioridades
+public class Tecnicos
 {
     [Key]
-        public int PrioridadId { get; set; }
+        public int TecnicosId { get; set; }
         [Required(ErrorMessage = "El Campo Descripci&oacute;n es obligatorio")]
         public string? Descripcion { get; set; }
     }

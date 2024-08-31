@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace RegistroPrioridades.Migrations
+namespace RegistroTecnicos.Migrations
 {
     /// <inheritdoc />
     public partial class Inicial : Migration
@@ -11,16 +11,16 @@ namespace RegistroPrioridades.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Prioridades",
+                name: "Tecnicos",
                 columns: table => new
                 {
-                    PrioridadId = table.Column<int>(type: "INTEGER", nullable: false)
+                    TecnicosId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Descripcion = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Prioridades", x => x.PrioridadId);
+                    table.PrimaryKey("PK_Tecnicos", x => x.TecnicosId);
                 });
         }
 
@@ -28,7 +28,7 @@ namespace RegistroPrioridades.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Prioridades");
+                name: "Tecnicos");
         }
     }
 }

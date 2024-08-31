@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace RegistroPrioridades.Migrations
+namespace RegistroTecnicos.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

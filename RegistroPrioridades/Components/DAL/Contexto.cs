@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RegistroPrioridades.Models;
+using RegistroTecnicos.Models;
 
-namespace RegistroPrioridades.DAL
+namespace RegistroTecnicos.DAL
 {
     public class Contexto : DbContext
     {
         public Contexto(DbContextOptions<Contexto> options)
             : base(options) { }
-        public DbSet<Prioridades> Prioridades { get; set; }
+        public DbSet<Tecnicos> Tecnicos { get; set; }
     }
 }
