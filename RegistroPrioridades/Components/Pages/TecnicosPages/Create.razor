@@ -3,19 +3,19 @@
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
-<PageTitle>Registro de Técnicos</PageTitle>
+<PageTitle>Registro de T&eacute;cnicos</PageTitle>
 <EditForm Model="tecnico" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="card">
         <div class="card-header bg-primary text-white text-center py-2 rounded">
-            <h3> <i class="fas fa-clipboard-list"></i> Registro de Técnicos</h3>
+            <h3> <i class="fas fa-clipboard-list"></i> Registro de T&eacute;cnicos</h3>
         </div>
 
         <div class="card-body">
             <!-- TecnicoId -->
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="TecnicoId" class="form-label">TécnicoId:</label>
+                    <label for="TecnicoId" class="form-label">T&eacute;cnicoId:</label>
                     <div class="input-group">
                         <div style="width: 40%; height: 1em;">
                             <InputNumber @bind-Value="tecnico.TecnicoId" class="form-control" style="font-size: 0.8em;" aria-describedby="BotonBuscar" />

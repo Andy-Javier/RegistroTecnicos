@@ -41,7 +41,7 @@ namespace RegistroTecnicos.Services
             bool existeNombre = await Contexto.Tecnicos.AnyAsync(t => t.Nombre == tecnico.Nombre && t.TecnicoId != tecnico.TecnicoId);
             if (existeNombre)
             {
-                throw new Exception("Ya existe un técnico con este nombre.");
+                throw new Exception("Ya existe un t&eacute;cnico con este nombre.");
             }
 
             if (!await Existe(tecnico.TecnicoId))
