@@ -1,0 +1,88 @@
+﻿@page "/Create"
+@inject TecnicosServices tecnicosServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<EditForm Model="ListaTecnicos" class="border shadow-lg p-3 rounded">
+    <div class="card-header bg-primary text-white text-center py-2 rounded">
+        <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Consulta T&eacute;cnicos</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-9"></div>
+            <div class="col-md-3 text-end">
+                <a href="/Create3" class="btn btn-success" type="button">
+                    <span class="bi bi-floppy-nav-menu" aria-hidden="Create3"></span> Crear
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th>TécnicoID</th>
+                    <th>Nombre</th>
+                    <th>SueldoHora</th>
+                    <th>Editar</th>
+                    <th>Detalle</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in ListaTecnicos)
+                {
+                    <tr>
+                        <td>@p.TecnicoId</td>
+                        <td>@p.Nombre</td>
+                        <td>@p.Sueldohora</td>
+                        <td>
+                            <a href="/Create4/@p.TecnicoId" style="border: none; background-color: transparent;" class="btn-editar">
+                                <span class="bi bi-pencil-square" style="font-size: 2rem;"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Create2/@p.TecnicoId" style="border: none; background-color: transparent;" class="btn-detalle">
+                                <span class="bi bi-info-circle-fill" style="font-size: 2rem;"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger ml-1" @onclick="() => IrEliminar(p.TecnicoId)">
+                                Eliminar <i class="bi bi-trash" />
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer text-end">
+        <p> Número de Tecnicos: @ListaTecnicos.Count </p>
+    </div>
+</EditForm>
+
+@code {
+    public List<Tecnicos> ListaTecnicos = new List<Tecnicos>();
+
+
+
+    protected override async void OnInitialized()
+
+    {
+
+        ListaTecnicos = await tecnicosServices.Listar(c => c.TecnicoId > 0);
+
+    }
+
+
+
+    public void IrEliminar(int tecnicoId)
+
+    {
+
+        navigationManager.NavigateTo($"/Tecnico/Delete/TecnicoId={tecnicoId}");
+
+    }
+
+
+}
