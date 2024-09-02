@@ -1,0 +1,123 @@
+﻿@page "/Create4"
+@page "/Create4/{TecnicoId:int}"
+@inject TecnicosServices tecnicosServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<EditForm Model="tecnicos" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
+            <h3> <i class="fas fa-clipboard-list"></i> Modificar T&eacute;cnico</h3>
+        </div>
+
+        <div class="card-body">
+            <!-- TecnicoId -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="TecnicoId" class="form-label">T&eacute;cnicoId:</label>
+                    <div class="input-group">
+                        <div style="width: 40%; height: 1em;">
+                            <InputNumber @bind-Value="tecnicos.TecnicoId" class="form-control" style="font-size: 0.8em;" aria-describedby="BotonBuscar" />
+                        </div>
+                        <ValidationMessage For="@(() => tecnicos.TecnicoId)" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nombres -->
+            <div class="mb-3">
+                <label for="Nombres" class="form-label">Nombre:</label>
+                <InputText @bind-Value="tecnicos.Nombre" class="form-control" />
+                <ValidationMessage For="@(() => tecnicos.Nombre)" />
+                @if (Existe)
+                {
+                    <p class="text-danger">Este nombre está en uso.</p>
+                }
+            </div>
+
+            <!-- SueldoHora -->
+            <div class="mb-3">
+                <label> SueldoHora </label>
+                <InputNumber @bind-Value="tecnicos.Sueldohora" class="form-control" />
+                <ValidationMessage For="@(() => tecnicos.Sueldohora)" />
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-center mt-3">
+            <div class="btn-group">
+                <button type="submit" class="btn btn-outline-success ml-2"><span class="bi bi-check-circle-fill"></span> Guardar </button>
+                <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><span class="bi bi-trash-fill"></span> Eliminar </button>
+                <button type="button" class="btn btn-outline-danger" @onclick="Retroceder"><span class="bi bi-arrow-bar-left"></span> Retroceder </button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int TecnicoId { get; set; }
+    public Tecnicos tecnicos { get; set; } = new Tecnicos();
+    private bool Existe = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TecnicoId != 0)
+        {
+            await Buscar();
+        }
+    }
+
+    public void Nuevo()
+    {
+        tecnicos = new Tecnicos();
+        Existe = false;
+    }
+
+    public async Task Buscar()
+    {
+        Existe = false;
+        var tecnicoEncontrado = await tecnicosServices.Buscar(TecnicoId);
+
+        if (tecnicoEncontrado != null)
+        {
+            tecnicos = tecnicoEncontrado;
+        }
+        else
+        {
+            Nuevo();
+        }
+    }
+    public async Task Guardar()
+    {
+        if (await Validar())
+        {
+            return;
+        }
+
+        var guardo = await tecnicosServices.Guardar(tecnicos);
+        if (guardo)
+        {
+            Nuevo();
+        }
+    }
+
+
+    public async Task Eliminar()
+    {
+        var eliminado = await tecnicosServices.Eliminar(tecnicos.TecnicoId);
+        Nuevo();
+    }
+
+    private void Retroceder()
+    {
+        navigationManager.NavigateTo("/Create");
+    }
+
+    public async Task<bool> Validar()
+    {
+        var listaTecnicos = await tecnicosServices.Listar(t => t.Nombre.ToLower() == tecnicos.Nombre.ToLower() && t.TecnicoId != tecnicos.TecnicoId);
+        Existe = listaTecnicos.Any();
+        return Existe;
+    }
+}
