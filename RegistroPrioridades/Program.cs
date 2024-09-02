@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RegistroTecnicos.Services; 
-using RegistroTecnicos.DAL;
+using RegistroTecnicos.Services;
 using RegistroTecnicos.Components;
 
 namespace RegistroTecnicos
