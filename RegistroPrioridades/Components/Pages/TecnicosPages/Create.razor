@@ -1,0 +1,122 @@
+﻿@page "/Tecnico/create3"
+@inject TecnicosServices tecnicoServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Registro de Técnicos</PageTitle>
+<EditForm Model="tecnico" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
+            <h3> <i class="fas fa-clipboard-list"></i> Registro de Técnicos</h3>
+        </div>
+
+        <div class="card-body">
+            <!-- TecnicoId -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="TecnicoId" class="form-label">TécnicoId:</label>
+                    <div class="input-group">
+                        <div style="width: 40%; height: 1em;">
+                            <InputNumber @bind-Value="tecnico.TecnicoId" class="form-control" style="font-size: 0.8em;" aria-describedby="BotonBuscar" />
+                        </div>
+                        <ValidationMessage For="@(() => tecnico.TecnicoId)" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nombre -->
+            <div class="mb-3">
+                <label for="Nombre" class="form-label">Nombre:</label>
+                <InputText @bind-Value="tecnico.Nombre" class="form-control" />
+                <ValidationMessage For="@(() => tecnico.Nombre)" />
+                @if (Existe)
+                {
+                    <p class="text-danger">Ya existe una persona con este nombre.</p>
+                }
+            </div>
+
+            <!-- SueldoHora -->
+            <div class="mb-3">
+                <label for="Sueldohora" class="form-label">SueldoHora:</label>
+                <InputNumber @bind-Value="tecnico.Sueldohora" class="form-control" />
+                <ValidationMessage For="@(() => tecnico.Sueldohora)" />
+            </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-center mt-3">
+            <div class="btn-group">
+                <button type="submit" class="btn btn-outline-success ml-2"><span class="bi bi-check-circle-fill"></span> Guardar </button>
+                <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><span class="bi bi-trash-fill"></span> Eliminar </button>
+                <button type="button" class="btn btn-outline-danger" @onclick="Retroceder"><span class="bi bi-arrow-bar-left"></span> Retroceder </button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int TecnicoId { get; set; }
+
+    public Tecnicos tecnico { get; set; } = new Tecnicos();
+    private bool Existe = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Cargar cualquier dato necesario si es necesario
+    }
+
+    public async Task Nuevo()
+    {
+        tecnico = new Tecnicos();
+        Existe = false;
+    }
+
+    public async Task Buscar()
+    {
+        Existe = false;
+        var tecnicoEncontrado = await tecnicoServices.Buscar(tecnico.TecnicoId);
+
+        if (tecnicoEncontrado != null)
+        {
+            tecnico = tecnicoEncontrado;
+        }
+        else
+        {
+            await Nuevo();
+        }
+    }
+
+    public async Task Guardar()
+    {
+        if (await Validar())
+        {
+            return;
+        }
+
+        var guardo = await tecnicoServices.Guardar(tecnico);
+        if (guardo)
+        {
+            Nuevo();
+            navigationManager.NavigateTo("/Tecnico/index");
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        var eliminado = await tecnicoServices.Eliminar(tecnico.TecnicoId);
+        Nuevo();
+    }
+
+    private async Task Retroceder()
+    {
+        navigationManager.NavigateTo("/Tecnico/index");
+    }
+
+    public async Task<bool> Validar()
+    {
+        var listaTecnicos = await tecnicoServices.Listar(t => t.Nombre.ToLower() == tecnico.Nombre.ToLower() && t.TecnicoId != tecnico.TecnicoId);
+        Existe = listaTecnicos.Any();
+        return Existe;
+    }
+}
