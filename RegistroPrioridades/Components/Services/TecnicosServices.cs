@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
 using System.Linq.Expressions;
 
@@ -7,69 +6,79 @@ namespace RegistroTecnicos.Services
 {
     public class TecnicosServices
     {
-        private readonly Contexto _context;
+        private readonly Contexto Contexto;
 
-        public TecnicosServices(Contexto context)
+        public TecnicosServices(Contexto contexto)
         {
-            _context = context;
+            Contexto = contexto;
         }
 
-        // Método para verificar si existe un técnico por ID
-        public async Task<bool> ExisteAsync(int tecnicoId)
+        // Método Existe
+        public async Task<bool> Existe(int TecnicoId)
         {
-            return await _context.Tecnicos.AnyAsync(t => t.TecnicoId == tecnicoId);
+            return await Contexto.Tecnicos.AnyAsync(t => t.TecnicoId == TecnicoId);
         }
 
-        // Método para insertar un nuevo técnico
-        private async Task<bool> InsertarAsync(Tecnicos tecnico)
+        // Método Insertar
+        private async Task<bool> Insertar(Tecnicos tecnico)
         {
-            await _context.Tecnicos.AddAsync(tecnico);
-            return await _context.SaveChangesAsync() > 0;
+            await Contexto.Tecnicos.AddAsync(tecnico);
+            return await Contexto.SaveChangesAsync() > 0;
         }
 
-        // Método para modificar un técnico existente
-        private async Task<bool> ModificarAsync(Tecnicos tecnico)
+        // Método Modificar
+        private async Task<bool> Modificar(Tecnicos tecnico)
         {
-            _context.Tecnicos.Update(tecnico);
-            return await _context.SaveChangesAsync() > 0;
+            Contexto.Tecnicos.Update(tecnico);
+            var modificado = await Contexto.SaveChangesAsync() > 0;
+            Contexto.Entry(tecnico).State = EntityState.Detached;
+            return modificado;
         }
 
-        // Método público para guardar (insertar o modificar) un técnico
-        public async Task<bool> GuardarAsync(Tecnicos tecnico)
+        // Método Guardar
+        public async Task<bool> Guardar(Tecnicos tecnico)
         {
-            if (!await ExisteAsync(tecnico.TecnicoId))
-                return await InsertarAsync(tecnico);
+            bool existeNombre = await Contexto.Tecnicos.AnyAsync(t => t.Nombre == tecnico.Nombre && t.TecnicoId != tecnico.TecnicoId);
+            if (existeNombre)
+            {
+                throw new Exception("Ya existe un técnico con este nombre.");
+            }
+
+            if (!await Existe(tecnico.TecnicoId))
+                return await Insertar(tecnico);
             else
-                return await ModificarAsync(tecnico);
+                return await Modificar(tecnico);
         }
 
-        // Método para eliminar un técnico por ID
-        public async Task<bool> EliminarAsync(int tecnicoId)
-        {
-            var tecnico = await _context.Tecnicos.FindAsync(tecnicoId);
-            if (tecnico == null)
-                return false;
 
-            _context.Tecnicos.Remove(tecnico);
-            return await _context.SaveChangesAsync() > 0;
+        // Método Eliminar
+        public async Task<bool> Eliminar(int id)
+        {
+            var tecnico = await Buscar(id);
+            if (tecnico != null)
+            {
+                Contexto.Tecnicos.Remove(tecnico);
+                return await Contexto.SaveChangesAsync() > 0;
+            }
+            return false;
         }
 
-        // Método para buscar un técnico por ID
-        public async Task<Tecnicos?> BuscarAsync(int tecnicoId)
+        // Método Buscar
+        public async Task<Tecnicos?> Buscar(int id)
         {
-            return await _context.Tecnicos.AsNoTracking().FirstOrDefaultAsync(t => t.TecnicoId == tecnicoId);
+            return await Contexto.Tecnicos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.TecnicoId == id);
         }
 
-        // Método para listar técnicos basados en un criterio
-        public async Task<List<Tecnicos>> ListarAsync(Expression<Func<Tecnicos, bool>> criterio)
+        // Método Listar
+        public async Task<List<Tecnicos>> Listar(Expression<Func<Tecnicos, bool>> criterio)
         {
-            return await _context.Tecnicos.AsNoTracking().Where(criterio).ToListAsync();
-        }
-
-        // Método para listar todos los técnicos
-        public async Task<List<Tecnicos>> ListarTodosAsync()
-        {
-            return await _context.Tecnicos.AsNoTracking().ToListAsync();
+            IQueryable<Tecnicos> tecnicos = Contexto.Tecnicos
+                            .AsNoTracking()
+                            .Where(criterio);
+            return await tecnicos
+                .ToListAsync();
         }
     }
 }
