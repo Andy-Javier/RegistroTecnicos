@@ -75,7 +75,7 @@
     public async Task Buscar()
     {
         Existe = false;
-        var tecnicoEncontrado = await tecnicoServices.Buscar(tecnico.TecnicoId);
+        var tecnicoEncontrado = await tecnicoServices.BuscarId(tecnico.TecnicoId);
 
         if (tecnicoEncontrado != null)
         {
