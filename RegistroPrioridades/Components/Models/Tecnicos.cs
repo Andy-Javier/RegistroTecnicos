@@ -6,11 +6,14 @@ namespace RegistroTecnicos.Models
     {
         [Key]
         public int TecnicoId { get; set; }
-        public string? Nombre { get; set; } = string.Empty;
-        public double Sueldohora { get; set; } 
 
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        public string Nombre { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El Campo Descripci&oacute;n es obligatorio")]
-        public string? Descripcion { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "El sueldo por hora debe ser positivo")]
+        public double SueldoHora { get; set; }
+
+        [Required(ErrorMessage = "La descripción es obligatoria")]
+        public string Descripcion { get; set; } = string.Empty;
     }
 }
