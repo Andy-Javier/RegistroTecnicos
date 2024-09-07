@@ -21,7 +21,7 @@ public class Contexto : DbContext
     {
         modelBuilder.Entity<Tecnicos>(entity =>
         {
-            entity.HasIndex(e => e.Nombre).IsUnique(); // Para evitar nombres duplicados
+            entity.HasIndex(e => e.Nombre).IsUnique();
         });
     }
 }
