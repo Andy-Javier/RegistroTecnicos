@@ -1,6 +1,6 @@
 ﻿@page "/Tecnico/Delete"
 @page "/Tecnico/Delete/TecnicoId={TecnicoId:int}"
-@inject TecnicosServices tecnicosServices
+@inject TecnicosServices tecnicoServices
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
@@ -57,14 +57,14 @@
 
 @code {
     [Parameter]
-    public int TecnicoId { get; set; }
     public Tecnicos? tecnicos { get; set; } = new Tecnicos();
+    public int TecnicoId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         if (TecnicoId != 0)
         {
-            tecnicos = await tecnicosServices.Buscar(TecnicoId);
+            tecnicos = await tecnicoServices.BuscarId(TecnicoId);
         }
     }
 
@@ -75,7 +75,7 @@
             return;
         }
 
-        if (await tecnicosServices.Eliminar(TecnicoId))
+        if (await tecnicoServices.Eliminar(TecnicoId))
         {
             Volver();
         }
