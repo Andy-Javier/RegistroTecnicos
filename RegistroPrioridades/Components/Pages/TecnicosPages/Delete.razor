@@ -9,7 +9,7 @@
 <div class="container">
     <div class="card shadow-header">
 
-        <div class="card-header  bg-primary text-white text-center py-2 rounded">
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
             <h3><strong>Eliminar T&eacute;cnico</strong></h3>
         </div>
         <div class="card-header">
@@ -31,7 +31,7 @@
                                             <ul class="list-unstyled">
                                                 <li><strong>TecnicoId:</strong> @tecnicos.TecnicoId</li>
                                                 <li><strong>Nombre:</strong> @tecnicos.Nombre</li>
-                                                <li><strong>Días Compromiso:</strong> @tecnicos.Sueldohora</li>
+                                                <li><strong>Sueldo por Hora:</strong> @tecnicos.SueldoHora</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -52,7 +52,7 @@
 
 @if (tecnicos == null)
 {
-    <p>El Tecnico no aparece.</p>
+    <p>El t&eacute;cnico no aparece.</p>
 }
 
 @code {
@@ -64,7 +64,15 @@
     {
         if (TecnicoId != 0)
         {
-            tecnicos = await tecnicoServices.BuscarId(TecnicoId);
+            try
+            {
+                tecnicos = await tecnicoServices.BuscarId(TecnicoId);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de error, si la búsqueda falla
+                Console.WriteLine($"Error buscando técnico: {ex.Message}");
+            }
         }
     }
 
@@ -75,9 +83,17 @@
             return;
         }
 
-        if (await tecnicoServices.Eliminar(TecnicoId))
+        try
         {
-            Volver();
+            if (await tecnicoServices.Eliminar(TecnicoId))
+            {
+                Volver();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Manejo de error al eliminar
+            Console.WriteLine($"Error eliminando técnico: {ex.Message}");
         }
     }
 
