@@ -9,21 +9,19 @@
 {
     <div class="container">
         <div class="card shadow-header">
-            <div class="card-header  bg-primary text-white text-center py-2 rounded">
+            <div class="card-header bg-primary text-white text-center py-2 rounded">
                 <h3 class="text-center"><strong>Detalles del t&eacute;cnico</strong></h3>
             </div>
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
-
                         <div class="card-body">
                             <ul class="list-unstyled">
                                 <li><strong>T&eacute;cnicoId:</strong> @tecnico.TecnicoId</li>
                                 <li><strong>Nombre:</strong> @tecnico.Nombre</li>
-                                <li><strong>SueldoHora:</strong> @tecnico.Sueldohora</li>
+                                <li><strong>Sueldo por Hora:</strong> @tecnico.SueldoHora</li>
                             </ul>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -45,7 +43,20 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        tecnico = await tecnicosServices.BuscarId(TecnicoId);
+        try
+        {
+            tecnico = await tecnicosServices.BuscarId(TecnicoId);
+            if (tecnico == null)
+            {
+                // Opcional: Puedes mostrar un mensaje o redirigir si el técnico no se encuentra
+            }
+        }
+        catch (Exception ex)
+        {
+            // Manejo de error, si la búsqueda falla
+            Console.WriteLine($"Error buscando técnico: {ex.Message}");
+            // Opcional: Puedes manejar el error de manera más visible para el usuario
+        }
     }
 
     public void Volver()
