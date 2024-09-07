@@ -38,9 +38,9 @@
 
             <!-- SueldoHora -->
             <div class="mb-3">
-                <label for="Sueldohora" class="form-label">SueldoHora:</label>
-                <InputNumber @bind-Value="tecnico.Sueldohora" class="form-control" />
-                <ValidationMessage For="@(() => tecnico.Sueldohora)" />
+                <label for="SueldoHora" class="form-label">SueldoHora:</label>
+                <InputNumber @bind-Value="tecnico.SueldoHora" class="form-control" />
+                <ValidationMessage For="@(() => tecnico.SueldoHora)" />
             </div>
         </div>
 
@@ -61,10 +61,9 @@
     public Tecnicos tecnico { get; set; } = new Tecnicos();
     private bool Existe = false;
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Cargar cualquier dato necesario si es necesario
-    }
+
+
+    
 
     public async Task Nuevo()
     {
@@ -74,16 +73,23 @@
 
     public async Task Buscar()
     {
-        Existe = false;
-        var tecnicoEncontrado = await tecnicoServices.BuscarId(tecnico.TecnicoId);
+        try
+        {
+            Existe = false;
+            var tecnicoEncontrado = await tecnicoServices.BuscarId(tecnico.TecnicoId);
 
-        if (tecnicoEncontrado != null)
-        {
-            tecnico = tecnicoEncontrado;
+            if (tecnicoEncontrado != null)
+            {
+                tecnico = tecnicoEncontrado;
+            }
+            else
+            {
+                await Nuevo();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await Nuevo();
+            // Manejo de un error
         }
     }
 
@@ -91,21 +97,35 @@
     {
         if (await Validar())
         {
-            return;
+            return; // Ya existe un técnico con el mismo nombre, no continuar.
         }
 
-        var guardo = await tecnicoServices.Guardar(tecnico);
-        if (guardo)
+        try
         {
-            Nuevo();
-            navigationManager.NavigateTo("/Tecnico/index");
+            var guardo = await tecnicoServices.Guardar(tecnico);
+            if (guardo)
+            {
+                await Nuevo();
+                navigationManager.NavigateTo("/Tecnico/index");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Manejo de un error
         }
     }
 
     public async Task Eliminar()
     {
-        var eliminado = await tecnicoServices.Eliminar(tecnico.TecnicoId);
-        Nuevo();
+        try
+        {
+            var eliminado = await tecnicoServices.Eliminar(tecnico.TecnicoId);
+            await Nuevo();
+        }
+        catch (Exception ex)
+        {
+            // Manejo de un error
+        }
     }
 
     private async Task Retroceder()
