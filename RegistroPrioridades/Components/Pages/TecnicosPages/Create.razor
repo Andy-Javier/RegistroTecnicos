@@ -1,5 +1,5 @@
-﻿@page "/Create3"
-@inject TecnicosServices tecnicoServices
+﻿@page "/Tecnico/Create"
+@inject TecnicosServices tecnicosServices
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
@@ -25,20 +25,20 @@
                 </div>
             </div>
 
-            <!-- Nombre -->
+            <!-- Nombres -->
             <div class="mb-3">
-                <label for="Nombre" class="form-label">Nombre:</label>
+                <label for="Nombres" class="form-label">Nombre:</label>
                 <InputText @bind-Value="tecnico.Nombre" class="form-control" />
                 <ValidationMessage For="@(() => tecnico.Nombre)" />
                 @if (Existe)
                 {
-                    <p class="text-danger">Ya existe una persona con este nombre.</p>
+                    <p class="text-danger">Ya este nombre está en uso.</p>
                 }
             </div>
 
             <!-- SueldoHora -->
             <div class="mb-3">
-                <label for="SueldoHora" class="form-label">SueldoHora:</label>
+                <label> SueldoHora </label>
                 <InputNumber @bind-Value="tecnico.SueldoHora" class="form-control" />
                 <ValidationMessage For="@(() => tecnico.SueldoHora)" />
             </div>
@@ -46,9 +46,10 @@
 
         <div class="card-footer bg-light d-flex justify-content-center mt-3">
             <div class="btn-group">
+
                 <button type="submit" class="btn btn-outline-success ml-2"><span class="bi bi-check-circle-fill"></span> Guardar </button>
                 <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><span class="bi bi-trash-fill"></span> Eliminar </button>
-                <button type="button" class="btn btn-outline-danger" @onclick="Retroceder"><span class="bi bi-arrow-bar-left"></span> Retroceder </button>
+                <button type="button" class="btn btn-outline-danger" @onclick="Retroceder"><span class="bi bi-arrow-bar-left"></span> Regresar </button>
             </div>
         </div>
     </div>
@@ -61,11 +62,7 @@
     public Tecnicos tecnico { get; set; } = new Tecnicos();
     private bool Existe = false;
 
-
-
-    
-
-    public async Task Nuevo()
+    public void Nuevo()
     {
         tecnico = new Tecnicos();
         Existe = false;
@@ -73,23 +70,16 @@
 
     public async Task Buscar()
     {
-        try
-        {
-            Existe = false;
-            var tecnicoEncontrado = await tecnicoServices.BuscarId(tecnico.TecnicoId);
+        Existe = false;
+        var tecnicoEncontrado = await tecnicosServices.Buscar(tecnico.TecnicoId);
 
-            if (tecnicoEncontrado != null)
-            {
-                tecnico = tecnicoEncontrado;
-            }
-            else
-            {
-                await Nuevo();
-            }
-        }
-        catch (Exception ex)
+        if (tecnicoEncontrado != null)
         {
-            // Manejo de un error
+            tecnico = tecnicoEncontrado;
+        }
+        else
+        {
+            Nuevo();
         }
     }
 
@@ -97,45 +87,31 @@
     {
         if (await Validar())
         {
-            return; // Ya existe un técnico con el mismo nombre, no continuar.
+            return;
         }
 
-        try
+        var guardo = await tecnicosServices.Guardar(tecnico);
+        if (guardo)
         {
-            var guardo = await tecnicoServices.Guardar(tecnico);
-            if (guardo)
-            {
-                await Nuevo();
-                navigationManager.NavigateTo("/Tecnico/index");
-            }
-        }
-        catch (Exception ex)
-        {
-            // Manejo de un error
+            Nuevo();
+            navigationManager.NavigateTo("/Create");
         }
     }
 
     public async Task Eliminar()
     {
-        try
-        {
-            var eliminado = await tecnicoServices.Eliminar(tecnico.TecnicoId);
-            await Nuevo();
-        }
-        catch (Exception ex)
-        {
-            // Manejo de un error
-        }
+        var eliminado = await tecnicosServices.Eliminar(tecnico.TecnicoId);
+        Nuevo();
     }
 
-    private async Task Retroceder()
+    private void Retroceder()
     {
-        navigationManager.NavigateTo("/Tecnico/index");
+        navigationManager.NavigateTo("/Create");
     }
 
     public async Task<bool> Validar()
     {
-        var listaTecnicos = await tecnicoServices.Listar(t => t.Nombre.ToLower() == tecnico.Nombre.ToLower() && t.TecnicoId != tecnico.TecnicoId);
+        var listaTecnicos = await tecnicosServices.Listar(t => t.Nombre.ToLower() == tecnico.Nombre.ToLower() && t.TecnicoId != tecnico.TecnicoId);
         Existe = listaTecnicos.Any();
         return Existe;
     }
