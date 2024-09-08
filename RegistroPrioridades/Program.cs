@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.Services;
 using RegistroTecnicos.Components;
+using RegistroTecnicos.Pages.DAL;
 
 namespace RegistroTecnicos
 {
@@ -17,9 +18,10 @@ namespace RegistroTecnicos
             //Obtenemos el ConStr para usarlo en el contexto
             var ConStr = builder.Configuration.GetConnectionString("ConStr");
 
-            //Agregamos el contexto al builder con el ConStr
+            // Agregamos el contexto al builder con el ConStr
             builder.Services.AddDbContext<Contexto>(Options => Options.UseSqlite(ConStr));
 
+            //Inyectar el servies
             builder.Services.AddScoped<TecnicosServices>();
 
             var app = builder.Build();
@@ -28,10 +30,12 @@ namespace RegistroTecnicos
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
+
             app.UseStaticFiles();
             app.UseAntiforgery();
 
