@@ -1,6 +1,0 @@
-CREATE TABLE "Tecnicos" (
-	"TecnicoId"	INTEGER,
-	"Nombres"	TEXT NOT NULL UNIQUE,
-	"SueldoHora"	REAL NOT NULL,
-	PRIMARY KEY("TecnicoId" AUTOINCREMENT)
-);
