@@ -1,161 +1,78 @@
 ﻿@page "/Tecnico/Index"
+@inject TecnicosServices tecnicosServices
+@inject NavigationManager navigationManager
 @rendermode InteractiveServer
-@inject TecnicosServices tecnicoServices
-@inject NavigationManager navigation
 
-<PageTitle>T&eacute;cnicos</PageTitle>
-
-<div class="container">
-    <div class="card shadow-lg">
-        @*Titulo*@
-        <div class="card-header text-white text-center">
-            <div class="bg-primary rounded">
-                <h1>Registro de t&eacute;cnicos</h1>
+<EditForm Model="ListaTecnicos" class="border shadow-lg p-3 rounded">
+    <div class="card-header bg-primary text-white text-center py-2 rounded">
+        <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Consulta T&eacute;cnicos</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-9"></div>
+            <div class="col-md-3 text-end">
+                <a href="/Create" class="btn btn-success" type="button">
+                    <span class="bi bi-floppy-nav-menu" aria-hidden="Create"></span> Crear
+                </a>
             </div>
-        </div>
-
-        @*Vista general*@
-        <div class="card-body">
-            <div class="row mb-2 align-items-end">
-                @*Zona de Filtro*@
-                <div class="row align-items-center">
-                    <div class="col-md-2">
-                        <label for="Filtro" class="form-label">Filtrar por:</label>
-                    </div>
-                    <div class="col-md-10">
-                        <div class="d-flex justify-content-end">
-                            <label for="TotalTecnicos" class="form-label">
-                                Total de t&eacute;cnicos: @ListaTecnicos.Count()
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                @*Selección de filtro*@
-                <div class="col-md-2">
-                    <select @bind="filtro" class="form-select">
-                        <option value="id">ID</option>
-                        <option value="nombres" selected>Nombres</option>
-                    </select>
-                </div>
-
-                @*Dato a buscar*@
-                <div class="col-md-5">
-                    <div class="input-group">
-                        <input @bind="valorFiltro" class="form-control" placeholder="Escribir dato" />
-                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button">
-                            <span class="bi bi-search"></span> Buscar
-                        </button>
-                    </div>
-                </div>
-
-                @*Restablecer tabla*@
-                <div class="col-md-3">
-                    <button class="btn btn-outline-secondary bi bi-arrow-clockwise" type="button"
-                            @onclick="OnInitializedAsync">
-                        Reiniciar todo
-                    </button>
-                </div>
-
-                @*Botón crear*@
-                <div class="col-md-2 text-end">
-                    <button class="btn btn-success bi bi-person-fill-add" type="button"
-                            @onclick="Crear">
-                        Crear
-                    </button>
-                </div>
-            </div>
-
-            @*Tabla con su lista*@
-            <table class="table table-bordered">
-                <thead class="bg-info text-center text-white">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Sueldo hora</th>
-                        <th>Detalles</th>
-                        <th>Editar</th>
-                        <th>Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var tecnico in ListaTecnicos)
-                    {
-                        <tr class="text-center">
-                            <td>@tecnico.TecnicoId</td>
-                            <td>@tecnico.Nombre</td>
-                            <td>@tecnico.Sueldohora.ToString("N2")</td>
-                            <td>
-                                <button type="button" class="btn btn-outline-info bi bi-journal-text"
-                                        @onclick="()=>Detalles(tecnico.TecnicoId)"></button>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-outline-warning bi bi-pencil-square"
-                                        @onclick="()=>Editar(tecnico.TecnicoId)"></button>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-outline-danger bi bi-trash"
-                                        @onclick="()=>Eliminar(tecnico.TecnicoId)"></button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
         </div>
     </div>
-</div>
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="bg-primary text-white">
+                <tr>
+                    <th>T&eacute;cnicoID</th>
+                    <th>Nombre</th>
+                    <th>SueldoHora</th>
+                    <th>Editar</th>
+                    <th>Detalle</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in ListaTecnicos)
+                {
+                    <tr>
+                        <td>@p.TecnicoId</td>
+                        <td>@p.Nombre</td>
+                        <td>@p.SueldoHora</td>
+                        <td>
+                            <a href="/Create4/@p.TecnicoId" style="border: none; background-color: transparent;" class="btn-editar">
+                                <span class="bi bi-pencil-square" style="font-size: 2rem;"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="/Create2/@p.TecnicoId" style="border: none; background-color: transparent;" class="btn-detalle">
+                                <span class="bi bi-info-circle-fill" style="font-size: 2rem;"></span>
+                            </a>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger ml-1" @onclick="() => IrEliminar(p.TecnicoId)">
+                                Eliminar <i class="bi bi-trash" />
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer text-end">
+        <p> N&uacute;mero de T&eacute;cnicos: @ListaTecnicos.Count </p>
+    </div>
+</EditForm>
 
 @code {
     public List<Tecnicos> ListaTecnicos = new List<Tecnicos>();
-    private string filtro = "";
-    private string valorFiltro = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async void OnInitialized()
     {
-        ListaTecnicos = await tecnicoServices.Listar(e => true);
-        filtro = "nombres";
-        valorFiltro = "";
+        ListaTecnicos = await tecnicosServices.Listar(c => c.TecnicoId > 0);
     }
 
-    private async Task Buscar()
+    public void IrEliminar(int tecnicoId)
     {
-        if (valorFiltro.Trim() != "")
-        {
-            if (filtro == "id" && int.TryParse(valorFiltro, out int tecnicoId))
-            {
-                ListaTecnicos = await tecnicoServices.Listar(t => t.TecnicoId == tecnicoId);
-            }
-            else if (filtro == "nombres")
-            {
-                ListaTecnicos = await tecnicoServices.Listar(t => t.Nombre
-                    .ToLower()
-                    .Contains(valorFiltro
-                    .ToLower()));
-            }
-        }
-        else
-        {
-            ListaTecnicos = await tecnicoServices.Listar(p => true);
-        }
+        navigationManager.NavigateTo($"/Tecnico/Delete/TecnicoId={tecnicoId}");
     }
 
-    public void Crear()
-    {
-        navigation.NavigateTo("/Tecnico/Create");
-    }
 
-    public void Detalles(int id)
-    {
-        navigation.NavigateTo($"/Tecnico/Details/tecnicoid={id}");
-    }
-
-    public void Editar(int id)
-    {
-        navigation.NavigateTo($"/Tecnico/Edit/tecnicoid={id}");
-    }
-
-    public void Eliminar(int id)
-    {
-        navigation.NavigateTo($"/Tecnico/Delete/tecnicoid={id}");
-    }
 }
