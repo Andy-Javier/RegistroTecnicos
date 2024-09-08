@@ -1,27 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.Models;
 
-public class Contexto : DbContext
+namespace RegistroTecnicos.Pages.DAL
 {
-    public DbSet<Tecnicos> Tecnicos { get; set; }
-
-    public Contexto(DbContextOptions<Contexto> options) : base(options)
+    public class Contexto : DbContext
     {
-    }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseSqlite("Data Source=path_to_your_database.db");
-        }
-    }
+        public Contexto(DbContextOptions<Contexto> options)
+            : base(options) { }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Tecnicos>(entity =>
-        {
-            entity.HasIndex(e => e.Nombre).IsUnique();
-        });
+        public DbSet<Tecnicos> Tecnicos { get; set; }
     }
 }
