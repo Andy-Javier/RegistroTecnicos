@@ -2,15 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RegistroTecnicos.Pages.DAL;
-
 
 #nullable disable
 
 namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240828031137_Inicial")]
+    [Migration("20240908023406_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -25,9 +25,13 @@ namespace RegistroTecnicos.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Descripcion")
+                    b.Property<string>("Nombre")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
+
+                    b.Property<decimal>("SueldoHora")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("TecnicoId");
 
