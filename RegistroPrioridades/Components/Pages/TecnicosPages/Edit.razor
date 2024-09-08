@@ -32,15 +32,15 @@
                 <ValidationMessage For="@(() => tecnicos.Nombre)" />
                 @if (Existe)
                 {
-                    <p class="text-danger">Este nombre está en uso.</p>
+                    <p class="text-danger">Este nombre est&aacute; en uso.</p>
                 }
             </div>
 
             <!-- SueldoHora -->
             <div class="mb-3">
                 <label> SueldoHora </label>
-                <InputNumber @bind-Value="tecnicos.Sueldohora" class="form-control" />
-                <ValidationMessage For="@(() => tecnicos.Sueldohora)" />
+                <InputNumber @bind-Value="tecnicos.SueldoHora" class="form-control" />
+                <ValidationMessage For="@(() => tecnicos.SueldoHora)" />
             </div>
         </div>
 
@@ -77,7 +77,7 @@
     public async Task Buscar()
     {
         Existe = false;
-        var tecnicoEncontrado = await tecnicosServices.BuscarId(TecnicoId);
+        var tecnicoEncontrado = await tecnicosServices.Buscar(TecnicoId);
 
         if (tecnicoEncontrado != null)
         {
