@@ -1,0 +1,56 @@
+﻿@page "/TiposTecnicos/Details"
+@page "/TiposTecnicos/Details/{TipoTecnicoId:int}"
+@inject TiposTecnicosServices tiposTecnicosServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Detalles de los tipos de T&eacute;cnicos</PageTitle>
+
+@if (tipoTecnico != null)
+{
+    <div class="container">
+        <div class="card shadow-header">
+            <div class="card-header bg-primary text-white text-center py-2 rounded">
+                <h3 class="text-center"><strong>Detalles del Tipo de Técnico</strong></h3>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><strong>TipoId:</strong> @tipoTecnico.TipoTecnicoId</li>
+                                <li><strong>Descripción:</strong> @tipoTecnico.Descripcion</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-primary" @onclick="Volver"><i class="bi bi-arrow-left-square-fill"></i> Volver</button>
+            </div>
+        </div>
+    </div>
+}
+
+else
+
+{
+    <p>El tipo de t&eacute;cnico no se ha encontrado.</p>
+}
+
+@code {
+    [Parameter]
+    public int TipoTecnicoId { get; set; }
+    public TiposTecnicos? tipoTecnico { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        tipoTecnico = await tiposTecnicosServices.Buscar(TipoTecnicoId);
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/TiposTecnicos/Index");
+    }
+
+}
