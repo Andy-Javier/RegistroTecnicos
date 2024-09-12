@@ -15,5 +15,10 @@ namespace RegistroTecnicos.Models
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal SueldoHora { get; set; }
+
+        [ForeignKey("TipoTecnico")]
+        public int TipoTecnicoId { get; set; }
+        public TiposTecnicos? TipoTecnico { get; set; }
+
     }
 }
