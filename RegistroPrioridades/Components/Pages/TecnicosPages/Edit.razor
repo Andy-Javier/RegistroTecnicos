@@ -1,6 +1,7 @@
-﻿@page "/Create4"
-@page "/Create4/{TecnicoId:int}"
+﻿@page "/Tecnico/Edit/"
+@page "/Tecnico/Edit/{TecnicoId:int}"
 @inject TecnicosServices tecnicosServices
+@inject TiposTecnicosServices tiposTecnicosServices
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
@@ -50,15 +51,28 @@
                 <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><span class="bi bi-trash-fill"></span> Eliminar </button>
                 <button type="button" class="btn btn-outline-danger" @onclick="Retroceder"><span class="bi bi-arrow-bar-left"></span> Retroceder </button>
             </div>
+
+    <!-- TiposTecnicos -->
+    <div class="mb-3">
+        <label for="TipoTecnicoId" class="form-label">Tipo de T&eacute;cnico:</label>
+        <InputSelect @bind-Value="tecnicos.TipoTecnicoId" class="form-control">
+            <option value="">Seleccione el tipo de t&eacute;cnico deseado</option>
+            @foreach (var tiposTecnicos in ListaTiposTecnicos)
+            {
+                <option value="@tiposTecnicos.TipoTecnicoId">@tiposTecnicos.Descripcion</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => tecnicos.TipoTecnicoId)" />
+            </div>
         </div>
     </div>
 </EditForm>
-
 @code {
     [Parameter]
     public int TecnicoId { get; set; }
     public Tecnicos tecnicos { get; set; } = new Tecnicos();
     private bool Existe = false;
+    private List<TiposTecnicos> ListaTiposTecnicos { get; set;} = new List<TiposTecnicos>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,7 +125,7 @@
 
     private void Retroceder()
     {
-        navigationManager.NavigateTo("/Create");
+        navigationManager.NavigateTo("/Tecnico/index");
     }
 
     public async Task<bool> Validar()
