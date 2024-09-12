@@ -1,6 +1,7 @@
-﻿@page "/Create"
+﻿@page "/Tecnicos/Create"
 @inject TecnicosServices tecnicosServices
 @inject NavigationManager navigationManager
+@inject TiposTecnicosServices tiposTecnicosServices
 @rendermode InteractiveServer
 
 <PageTitle>Registro de T&eacute;cnicos</PageTitle>
@@ -32,7 +33,7 @@
                 <ValidationMessage For="@(() => tecnico.Nombre)" />
                 @if (Existe)
                 {
-                    <p class="text-danger">Ya este nombre está en uso.</p>
+                    <p class="text-danger">Ya este nombre est&aacute; en uso.</p>
                 }
             </div>
 
@@ -49,9 +50,25 @@
 
                 <button type="submit" class="btn btn-outline-success ml-2"><span class="bi bi-check-circle-fill"></span> Guardar </button>
                 <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><span class="bi bi-trash-fill"></span> Eliminar </button>
-                <button type="button" class="btn btn-outline-danger" @onclick="Retroceder"><span class="bi bi-arrow-bar-left"></span> Regresar </button>
+                <button type="button" class="btn btn-outline-danger" @onclick="Regresar"><span class="bi bi-arrow-bar-left"></span> Regresar </button>
             </div>
         </div>
+        <!--TiposTecnicos-->
+         <div class="mb-3">
+                <label for="TipoTecnicoId">Tipo de T&eacute;cnico:</label>
+                <div class="row">
+                    <div class="col-4 ms-3">
+                        <InputSelect @bind-Value="tecnico.TipoTecnicoId" class="form-control">
+                            <option value="">Seleccione un tipo de técnico</option>
+                            @foreach (var tiposTecnicos in ListaTiposTecnicos)
+                            {
+                                <option value="@tiposTecnicos.TipoTecnicoId">@tiposTecnicos.Descripcion</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => tecnico.TipoTecnicoId)" />
+                    </div>
+                </div>
+            </div>
     </div>
 </EditForm>
 
@@ -60,9 +77,16 @@
     public int TecnicoId { get; set; }
 
     public Tecnicos tecnico { get; set; } = new Tecnicos();
+    public List<TiposTecnicos> ListaTiposTecnicos { get; set; } = new List<TiposTecnicos>();
     private bool Existe = false;
 
-    public void Nuevo()
+    protected override async Task OnInitializedAsync()
+    {
+        ListaTiposTecnicos = await tiposTecnicosServices.Listar(t => true);
+    }
+
+
+    public async Task Nuevo()
     {
         tecnico = new Tecnicos();
         Existe = false;
@@ -79,7 +103,7 @@
         }
         else
         {
-            Nuevo();
+            await Nuevo();
         }
     }
 
@@ -93,20 +117,20 @@
         var guardo = await tecnicosServices.Guardar(tecnico);
         if (guardo)
         {
-            Nuevo();
-            navigationManager.NavigateTo("/Tecnico/Index");
+            await Nuevo();
+            navigationManager.NavigateTo("/Tecnico/index");
         }
     }
 
     public async Task Eliminar()
     {
         var eliminado = await tecnicosServices.Eliminar(tecnico.TecnicoId);
-        Nuevo();
+        await Nuevo();
     }
 
-    private void Retroceder()
+    private void Regresar()
     {
-        navigationManager.NavigateTo("/Tecnico/Index");
+        navigationManager.NavigateTo("/Tecnico/index");
     }
 
     public async Task<bool> Validar()
