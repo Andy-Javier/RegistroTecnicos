@@ -10,7 +10,7 @@ using RegistroTecnicos.Pages.DAL;
 namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240908023406_Inicial")]
+    [Migration("20240912170912_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -33,9 +33,40 @@ namespace RegistroTecnicos.Migrations
                     b.Property<decimal>("SueldoHora")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("TipoTecnicoId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("TecnicoId");
 
+                    b.HasIndex("TipoTecnicoId");
+
                     b.ToTable("Tecnicos");
+                });
+
+            modelBuilder.Entity("RegistroTecnicos.Models.TiposTecnicos", b =>
+                {
+                    b.Property<int>("TipoTecnicoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TipoTecnicoId");
+
+                    b.ToTable("TiposTecnicos");
+                });
+
+            modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
+                {
+                    b.HasOne("RegistroTecnicos.Models.TiposTecnicos", "TipoTecnico")
+                        .WithMany()
+                        .HasForeignKey("TipoTecnicoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TipoTecnico");
                 });
 #pragma warning restore 612, 618
         }
