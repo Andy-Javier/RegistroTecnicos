@@ -1,0 +1,122 @@
+﻿@page "/TiposTecnicos/Index"
+@inject TiposTecnicosServices tiposTecnicosServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Tipos de T&eacute;cnicos</PageTitle>
+
+<EditForm Model="ListaTiposTecnicos" class="border shadow-lg p-3 rounded">
+    <div class="card-header bg-primary text-white text-center py-2 square">
+        <h3 style="font-weight: bold;" class="mb-0 font-weight-bold">Tipos de T&eacute;cnicos</h3>
+    </div>
+
+    <div class="row mb-3 align-items-end">
+        <div class="col-mb-3">
+            <label for="Filtro" class="form-label"></label>
+            <select @bind="filtro" class="form-select">
+                <option value="" disable selected>Filtrar por:</option>
+                <option value="id">ID</option>
+                <option value="descripcion">Descripci&oacute;n</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-9"></div>
+            <div class="col-md-3 text-end">
+                <a href="/TiposTecnicos/Create" class="btn btn-success" type="button">
+                    <i class="bi bi-pencil-square"></i>
+                    Crear
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center"
+        <thead class="bg-primary text-white">
+            <tr>
+                <th>TipoId</th>
+                <th>Descripción</th>
+                <th>Ver</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+                @foreach (var tipos in ListaTiposTecnicos)
+                {
+                        <tr>
+                            <td>@tipos.TipoTecnicoId</td>
+                            <td>@tipos.Descripcion</td>
+                            <td>
+                                    <a class="btn btn-outline-primary" href="/TiposTecnicos/Details/@tipos.TipoTecnicoId">
+                                    <span class="bi bi-eye-fill"></span>
+                                </a>
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-success" href="/TiposTecnicos/Edit/@tipos.TipoTecnicoId">
+                                    <span class="bi bi-pencil-square"></span>
+                                </a>
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-danger" href="/TiposTecnicos/Delete/@tipos.TipoTecnicoId">
+                                        <span class="bi bi-trash"></span>
+                                </a>
+                            </td>
+                        </tr>
+
+                }
+            </tbody>
+            </table>
+    </div>
+    <div class="card-footer text-start">
+        <p style="font-weight: bold;">Total de Tipos de T&eacute;cnicos: @ListaTiposTecnicos.Count</p>
+    </div>
+</EditForm>
+
+@code {
+    public List<TiposTecnicos> ListaTiposTecnicos { get; set; } = new List<TiposTecnicos>();
+    private string filtro = "id";
+    private string? valorFiltro;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaTiposTecnicos = await tiposTecnicosServices.Listar(c => c.TipoTecnicoId > 0);
+    }
+
+    private async Task Buscar()
+    {
+        if (!string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            if (filtro == "id" && int.TryParse(valorFiltro, out int TiposTecnicosId))
+            {
+                ListaTiposTecnicos = await tiposTecnicosServices.Listar(t => t.TipoTecnicoId == TiposTecnicosId);
+            }
+            else if (filtro == "descripcion")
+            {
+                ListaTiposTecnicos = await tiposTecnicosServices.Listar(t => t.Descripcion.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+        else
+        {
+            ListaTiposTecnicos = await tiposTecnicosServices.Listar(p => true);
+        }
+    }
+
+    private void IrADetalles(int TipoTecnicoId)
+    {
+        navigationManager.NavigateTo($"/TiposTecnicos/Details/{TipoTecnicoId:int}");
+    }
+
+    private void IrAEditar(int TipoTecnicoId)
+    {
+        navigationManager.NavigateTo($"/TiposTecnicos/Edit/{TipoTecnicoId:int}");
+    }
+
+    private void IrEliminar(int TipoTecnicoId)
+    {
+        navigationManager.NavigateTo($"/TiposTecnicos/Delete/{TipoTecnicoId:int}");
+    }
+}
