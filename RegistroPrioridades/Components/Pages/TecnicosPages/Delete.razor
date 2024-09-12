@@ -1,7 +1,8 @@
 ﻿@page "/Tecnico/Delete"
-@page "/Tecnico/Delete/TecnicoId={TecnicoId:int}"
+@page "/Tecnico/Delete/{TecnicoId:int}"
 @inject TecnicosServices tecnicosServices
 @inject NavigationManager navigationManager
+@inject TiposTecnicosServices tiposTecnicosServices
 @rendermode InteractiveServer
 
 <PageTitle>Eliminar T&eacute;cnico</PageTitle>
@@ -9,11 +10,11 @@
 <div class="container">
     <div class="card shadow-header">
 
-        <div class="card-header  bg-primary text-white text-center py-2 rounded">
-            <h3><strong>Eliminar Técnico</strong></h3>
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
+            <h3><strong>Eliminar T&eacute;cnico</strong></h3>
         </div>
         <div class="card-header">
-            <h3 class="text-danger">¿Deseas eliminar este t&eacute;cnico?</h3>
+            <h5 class="text-danger">¿Deseas eliminar este t&eacute;cnico?</h5>
         </div>
 
         <div class="container">
@@ -29,9 +30,10 @@
                                     <div class="row">
                                         <div class="col-md-8">
                                             <ul class="list-unstyled">
-                                                <li><strong>TecnicoId:</strong> @tecnicos?.TecnicoId</li>
-                                                <li><strong>Nombre:</strong> @tecnicos?.Nombre</li>
-                                                <li><strong>Días Compromiso:</strong> @tecnicos?.SueldoHora</li>
+                                                <li><strong>T&eacute;cnicoId:</strong> @tecnicos?.TecnicoId</li>
+                                                <li><strong>Nombres:</strong> @tecnicos?.Nombre</li>
+                                                <li><strong>Descripción:</strong> @tipoTecnicoDescripcion</li>
+                                                <li><strong>SueldoHora:</strong> @tecnicos?.SueldoHora</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -44,31 +46,35 @@
         </div>
 
         <div class="card-footer">
-            <button type="button" class="btn btn-outline-danger" @onclick="EliminarPrioridad"><i class="bi bi-trash-fill"></i> Eliminar</button>
-            <button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left"></i> Volver</button>
+            <button type="button" class="btn btn-danger" @onclick="EliminarTecnico"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button type="button" class="btn btn-primary" @onclick="Volver"><i class="bi bi-arrow-left-square-fill"></i> Volver</button>
         </div>
     </div>
 </div>
 
 @if (tecnicos == null)
 {
-    <p>El T&eacute;cnico no aparece.</p>
+    <p>Técnico no encontrado.</p>
 }
 
 @code {
     [Parameter]
     public int TecnicoId { get; set; }
     public Tecnicos? tecnicos { get; set; } = new Tecnicos();
+    private string tipoTecnicoDescripcion = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        if (TecnicoId != 0)
+        tecnicos = await tecnicosServices.Buscar(TecnicoId);
+
+        if (tecnicos != null)
         {
-            tecnicos = await tecnicosServices.Buscar(TecnicoId);
+            var tipoTecnico = await tiposTecnicosServices.Buscar(tecnicos.TipoTecnicoId);
+            tipoTecnicoDescripcion = tipoTecnico?.Descripcion ?? "Tipo de técnico no asignado";
         }
     }
 
-    public async Task EliminarPrioridad()
+    public async Task EliminarTecnico()
     {
         if (TecnicoId == 0 || tecnicos == null)
         {
@@ -83,6 +89,6 @@
 
     public void Volver()
     {
-        navigationManager.NavigateTo("/Create");
+        navigationManager.NavigateTo("/Tecnico/index");
     }
 }
