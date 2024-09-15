@@ -37,17 +37,17 @@
                         <td>@p.Nombre</td>
                         <td>@p.SueldoHora</td>
                         <td>
-                            <a href="/Tecnico/Edit//@p.TecnicoId" style="border: none; background-color: transparent;" class="btn-editar">
-                                <span class="bi bi-pencil-square" style="font-size: 2rem;"></span>
+                            <a class="btn btn-outline-primary" href="/Tecnico/Details/@p.TecnicoId">
+                               Detalles <i class="bi bi-eye-fill"></i>
                             </a>
                         </td>
                         <td>
-                            <a href="/Tecnico/Details/@p.TecnicoId" style="border: none; background-color: transparent;" class="btn-detalle">
-                                <span class="bi bi-info-circle-fill" style="font-size: 2rem;"></span>
+                            <a class="btn btn-outline-success" href="/Tecnico/Edit/@p.TecnicoId">
+                                Editar <i class="bi bi-pencil-square"></i>
                             </a>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-danger ml-1" @onclick="() => IrEliminar(p.TecnicoId)">
+                            <button type="button" class="btn btn-danger ml-1" @onclick="() => EliminarTecnico(p.TecnicoId)">
                                 Eliminar <i class="bi bi-trash" />
                             </button>
                         </td>
@@ -69,10 +69,8 @@
         ListaTecnicos = await tecnicosServices.Listar(c => c.TecnicoId > 0);
     }
 
-    public void IrEliminar(int tecnicoId)
+    public void EliminarTecnico(int tecnicoId)
     {
-        navigationManager.NavigateTo($"/Tecnico/Delete/TecnicoId={tecnicoId}");
+        navigationManager.NavigateTo($"/Tecnico/Delete/{tecnicoId}");
     }
-
-
 }
