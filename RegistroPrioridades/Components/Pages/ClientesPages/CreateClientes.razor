@@ -1,0 +1,54 @@
+﻿@page "/Create/Clientes"
+@inject ClientesServices clientesServices
+@inject NavigationManager Navigation
+@code {
+    private Clientes cliente = new Clientes();
+    private bool guardando = false;
+
+    private async Task Guardar()
+    {
+        guardando = true;
+
+        if (await clientesServices.ExisteCliente(cliente.ClienteId, cliente.Nombres))
+        {
+            // Mostrar mensaje de error si ya existe un cliente con el mismo nombre
+            Console.WriteLine("Error: Ya existe un cliente con ese nombre.");
+        }
+        else
+        {
+            if (await clientesServices.Guardar(cliente))
+            {
+                // Redirigir a la lista de clientes o mostrar mensaje de éxito
+                Navigation.NavigateTo("/Clientes/Ind ex");
+            }
+            else
+            {
+                // Manejar errores si no se pudo guardar el cliente
+                Console.WriteLine("Error: No se pudo guardar el cliente.");
+            }
+        }
+
+        guardando = false;
+    }
+}
+
+<h3>Agregar Nuevo Cliente</h3>
+
+<EditForm Model="cliente" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="nombres" class="form-label">Nombres:</label>
+        <InputText id="nombres" class="form-control" @bind-Value="cliente.Nombres" />
+        <ValidationMessage For="@(() => cliente.Nombres)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="whatsapp" class="form-label">WhatsApp:</label>
+        <InputText id="whatsapp" class="form-control" @bind-Value="cliente.WhatsApp" />
+        <ValidationMessage For="@(() => cliente.WhatsApp)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@(guardando)">Guardar</button>
+</EditForm>
