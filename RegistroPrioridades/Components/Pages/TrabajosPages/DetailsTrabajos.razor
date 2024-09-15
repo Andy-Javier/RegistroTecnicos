@@ -1,0 +1,29 @@
+﻿@page "/Trabajos/Details/{TrabajoId:int}"
+@inject TrabajosServices trabajosServices
+
+<h3>Detalles del Trabajo</h3>
+
+@if (trabajo != null)
+{
+    <div>
+        <p><strong>Fecha:</strong> @trabajo.Fecha</p>
+        <p><strong>Cliente:</strong> @trabajo.Cliente?.Nombres</p>
+        <p><strong>Técnico:</strong> @trabajo.Tecnico?.Nombres</p>
+        <p><strong>Descripción:</strong> @trabajo.Descripcion</p>
+        <p><strong>Monto:</strong> @trabajo.Monto</p>
+    </div>
+}
+else
+{
+    <p>Cargando...</p>
+}
+
+@code {
+    [Parameter] public int TrabajoId { get; set; }
+    private Trabajos? trabajo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        trabajo = await trabajosService.Buscar(TrabajoId);
+    }
+}
