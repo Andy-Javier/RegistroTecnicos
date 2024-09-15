@@ -1,0 +1,77 @@
+﻿@page "/Trabajos/Create"
+@inject TrabajosServices trabajosServices
+@inject ClientesServices clientesServices
+@inject TecnicosServices tecnicosServices
+@inject NavigationManager navigationManager
+
+<h3>Crear Trabajo</h3>
+
+<EditForm Model="@trabajo" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label">Fecha</label>
+        <InputDate class="form-control" @bind-Value="trabajo.Fecha" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Cliente</label>
+        <InputSelect class="form-control" @bind-Value="trabajo.ClienteId">
+            <option value="">Seleccione un cliente</option>
+            @foreach (var cliente in clientes)
+            {
+                <option value="@cliente.ClienteId">@cliente.Nombres</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">T&eacute;cnico</label>
+        <InputSelect class="form-control" @bind-Value="trabajo.TecnicoId">
+            <option value="">Seleccione un t&eacute;cnico</option>
+            @foreach (var tecnico in tecnicos)
+            {
+                <option value="@tecnico.TecnicoId">@tecnico.Nombre</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Descripción</label>
+        <InputTextArea class="form-control" @bind-Value="trabajo.Descripcion" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Monto</label>
+        <InputNumber class="form-control" @bind-Value="trabajo.Monto" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <button class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+</EditForm>
+
+@code {
+    private Trabajos trabajo = new();
+    private List<Clientes> clientes = new();
+    private List<Tecnicos> tecnicos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await clientesServices.Listar(c => true);
+        tecnicos = await tecnicosServices.Listar(t => true);
+    }
+
+    private async Task Guardar()
+    {
+        if (await trabajosServices.Guardar(trabajo))
+        {
+            navigationManager.NavigateTo("/Trabajos/Index");
+        }
+    }
+
+    private void Cancelar()
+    {
+        navigationManager.NavigateTo("/Trabajos/Index");
+    }
+}
