@@ -1,0 +1,29 @@
+﻿@page "/Trabajos/Delete/{TrabajoId:int}"
+@inject TrabajosServices trabajosServices
+@inject NavigationManager navigationManager
+
+<h3>Eliminar Trabajo</h3>
+
+<div>
+    <p>¿Est&aacute; seguro de que desea eliminar este trabajo?</p>
+
+    <button class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+    <button class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+</div>
+
+@code {
+    [Parameter] public int TrabajoId { get; set; }
+
+    private async Task Eliminar()
+    {
+        if (await trabajosServices.Eliminar(TrabajoId))
+        {
+            navigationManager.NavigateTo("/Trabajos/Index");
+        }
+    }
+
+    private void Cancelar()
+    {
+        navigationManager.NavigateTo("/Trabajos/Index");
+    }
+}
