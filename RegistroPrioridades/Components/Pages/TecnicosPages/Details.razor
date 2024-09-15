@@ -1,5 +1,5 @@
 ﻿@page "/Tecnico/Details"
-@page "/Tecnico/Details{TecnicoId:int}"
+@page "/Tecnico/Details/{TecnicoId:int}"
 @inject TecnicosServices tecnicosServices
 @inject TiposTecnicosServices tiposTecnicosServices
 @inject NavigationManager navigationManager
@@ -52,6 +52,6 @@ else
 
     public void Volver()
     {
-        navigationManager.NavigateTo("/Create");
+        navigationManager.NavigateTo("/Tecnico/Index");
     }
 }
