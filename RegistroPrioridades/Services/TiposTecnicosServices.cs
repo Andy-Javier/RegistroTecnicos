@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RegistroTecnicos.Pages.DAL;
+using RegistroTecnicos.DAL;
 using System.Linq.Expressions;
 using RegistroTecnicos.Models;
 
