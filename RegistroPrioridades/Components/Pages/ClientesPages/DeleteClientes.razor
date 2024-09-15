@@ -1,0 +1,39 @@
+﻿@page "/Clientes/Delete/{ClienteId:int}"
+@inject ClientesServices clientesServices
+@inject NavigationManager Navigation
+
+<h3>Eliminar Cliente</h3>
+
+@if (cliente == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else
+{
+    <div>
+        <p>¿Estás seguro de que deseas eliminar al cliente <strong>@cliente.Nombres</strong>?</p>
+        <button class="btn btn-danger" @onclick="ConfirmarEliminar">Eliminar</button>
+        <button class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+    </div>
+}
+
+@code {
+    [Parameter] public int ClienteId { get; set; }
+    private Clientes cliente;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cliente = await clientesServices.Buscar(ClienteId);
+    }
+
+    private async Task ConfirmarEliminar()
+    {
+        await clientesServices.Eliminar(ClienteId);
+        Navigation.NavigateTo("/clientes-list");
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/clientes-list");
+    }
+}
