@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.Services;
 using RegistroTecnicos.Components;
-using RegistroTecnicos.Pages.DAL;
+using RegistroTecnicos.DAL;
 
 namespace RegistroTecnicos
 {
@@ -24,7 +24,9 @@ namespace RegistroTecnicos
             //Inyectar el services
             builder.Services.AddScoped<TecnicosServices>();
             builder.Services.AddScoped<TiposTecnicosServices>();
-
+            builder.Services.AddScoped<ClientesServices>();
+            builder.Services.AddScoped<TrabajosServices>();
+            builder.Services.AddBlazorBootstrap();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
