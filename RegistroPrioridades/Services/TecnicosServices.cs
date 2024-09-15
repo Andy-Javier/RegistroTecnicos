@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.Models;
-using RegistroTecnicos.DAL;
+using RegistroTecnicos.Pages.DAL;
 using System.Linq.Expressions;
 
 
