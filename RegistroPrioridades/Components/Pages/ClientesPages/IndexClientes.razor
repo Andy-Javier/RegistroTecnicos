@@ -1,0 +1,67 @@
+﻿@page "/Clientes/Index"
+@inject ClientesServices clientesServices
+@inject NavigationManager Navigation
+
+<PageTitle>Lista de Clientes</PageTitle>
+
+@if (clientes == null)
+{
+    <p><em>Cargando...</em></p>
+}
+else if (clientes.Count == 0)
+{
+    <p>No hay clientes registrados.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombres</th>
+                <th>WhatsApp</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cliente in clientes)
+            {
+                <tr>
+                    <td>@cliente.Nombres</td>
+                    <td>@cliente.WhatsApp</td>
+                    <td>
+                        <button class="btn btn-info" @onclick="() => VerDetalles(cliente.ClienteId)">Detalles</button>
+                        <button class="btn btn-warning" @onclick="() => Editar(cliente.ClienteId)">Editar</button>
+                        <button class="btn btn-danger" @onclick="() => Eliminar(cliente.ClienteId)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Clientes> clientes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await clientesServices.Listar(c => true); // Lista todos los clientes
+    }
+
+    private void VerDetalles(int clienteId)
+    {
+        Navigation.NavigateTo($"/Clientes/Details/{clienteId}");
+    }
+
+    private void Editar(int clienteId)
+    {
+        Navigation.NavigateTo($"/Clientes/Edit/{clienteId}");
+    }
+
+    private async Task Eliminar(int clienteId)
+    {
+        if (await clientesServices.Eliminar(clienteId))
+        {
+            clientes = await clientesServices.Listar(c => true); // Refrescar lista después de eliminar
+        }
+    }
+}
