@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using RegistroTecnicos.Models;
 
-namespace RegistroTecnicos.DAL
+
+namespace RegistroTecnicos.Models
 {
     public class Trabajos
     {
