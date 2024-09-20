@@ -19,7 +19,7 @@ else
 
 @code {
     [Parameter] public int ClienteId { get; set; }
-    private Clientes cliente;
+    private Clientes? cliente;
 
     protected override async Task OnInitializedAsync()
     {
@@ -29,11 +29,11 @@ else
     private async Task ConfirmarEliminar()
     {
         await clientesServices.Eliminar(ClienteId);
-        Navigation.NavigateTo("/clientes-list");
+        Navigation.NavigateTo("/Clientes/Index");
     }
 
     private void Cancelar()
     {
-        Navigation.NavigateTo("/clientes-list");
+        Navigation.NavigateTo("/Clientes/Index");
     }
 }
