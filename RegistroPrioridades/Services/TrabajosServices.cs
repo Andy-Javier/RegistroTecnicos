@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
-//using RegistroTecnicos.DAL;
 using System.Linq.Expressions;
 using RegistroTecnicos.Models;
 using System.Threading.Tasks;
