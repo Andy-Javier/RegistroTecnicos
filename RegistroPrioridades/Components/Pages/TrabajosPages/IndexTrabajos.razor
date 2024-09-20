@@ -1,0 +1,50 @@
+﻿@page "/Trabajos/Index"
+@inject TrabajosServices trabajosServices
+
+<h3>Lista de Trabajos</h3>
+
+@if (trabajos != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>T&eacute;cnico</th>
+                <th>Descripción</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trabajo in trabajos)
+            {
+                <tr>
+                    <td>@trabajo.Fecha</td>
+                    <td>@trabajo.Cliente?.Nombres</td>
+                    <td>@trabajo.Tecnico?.Nombre</td>
+                    <td>@trabajo.Descripcion</td>
+                    <td>@trabajo.Monto</td>
+                    <td>
+                        <NavLink class="btn btn-info" href="/Trabajos/Details/@trabajo.TrabajoId">Detalles</NavLink>
+                        <NavLink class="btn btn-warning" href="/Trabajos/Edit/@trabajo.TrabajoId">Editar</NavLink>
+                        <NavLink class="btn btn-danger" href="/Trabajos/Delete/@trabajo.TrabajoId">Eliminar</NavLink>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Cargando...</p>
+}
+
+@code {
+    private List<Trabajos> trabajos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        trabajos = await trabajosServices.Listar(t => true);
+    }
+}
