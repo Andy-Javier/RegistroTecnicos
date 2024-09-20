@@ -33,7 +33,7 @@ else
 
 @code {
     [Parameter] public int ClienteId { get; set; }
-    private Clientes cliente;
+    private Clientes? cliente;
 
     protected override async Task OnInitializedAsync()
     {
@@ -44,7 +44,7 @@ else
     {
         if (await clientesServices.Guardar(cliente))
         {
-            Navigation.NavigateTo("/clientes-list");
+            Navigation.NavigateTo("/Clientes/Index");
         }
         else
         {
@@ -54,6 +54,6 @@ else
 
     private void Regresar()
     {
-        Navigation.NavigateTo("/clientes-list");
+        Navigation.NavigateTo("/Clientes/Index");
     }
 }
