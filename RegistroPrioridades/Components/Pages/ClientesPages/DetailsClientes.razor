@@ -19,7 +19,7 @@ else
 
 @code {
     [Parameter] public int ClienteId { get; set; }
-    private Clientes cliente;
+    private Clientes? cliente;
 
     protected override async Task OnInitializedAsync()
     {
@@ -28,6 +28,6 @@ else
 
     private void Regresar()
     {
-        Navigation.NavigateTo("/clientes-list");
+        Navigation.NavigateTo("/Clientes/Index");
     }
 }
