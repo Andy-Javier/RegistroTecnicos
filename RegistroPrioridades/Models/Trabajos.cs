@@ -14,7 +14,6 @@ namespace RegistroTecnicos.Models
         public int ClienteId { get; set; }
         [Required]
         public int TecnicoId { get; set; }
-        [Required]
         public string? Descripcion { get; set; }
         [Required]
         public decimal Monto { get; set; }

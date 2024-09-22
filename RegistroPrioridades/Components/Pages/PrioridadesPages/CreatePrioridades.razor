@@ -1,0 +1,60 @@
+﻿@page "/Prioridades/Create"
+@inject PrioridadesServices prioridadesServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Crear Prioridad</PageTitle>
+<EditForm Model="prioridad" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
+            <h3> <i class="fas fa-flag"></i> <strong>Crear Prioridad</strong></h3>
+        </div>
+
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="PrioridadId" class="form-label">ID de la Prioridad</label>
+                <InputNumber @bind-Value="prioridad.PrioridadId" class="form-control" readonly />
+            </div>
+
+            <div class="mb-3">
+                <label for="Descripcion" class="form-label">Descripción</label>
+                <InputText @bind-Value="prioridad.Descripcion" class="form-control" />
+                <ValidationMessage For="@(() => prioridad.Descripcion)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Tiempo" class="form-label">Tiempo en minutos</label>
+                <InputNumber @bind-Value="prioridad.Tiempo" class="form-control" />
+                <ValidationMessage For="@(() => prioridad.Tiempo)" />
+            </div>
+
+            <div class="card-footer bg-light d-flex justify-content-around mt-3">
+                <button type="submit" class="btn btn-success">
+                    <span class="bi bi-check-circle-fill"></span> Guardar
+                </button>
+                <button type="button" class="btn btn-primary" @onclick="Volver">
+                    <span class="bi bi-arrow-left-square-fill"></span> Volver
+                </button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Prioridades prioridad { get; set; } = new Prioridades();
+
+    private async Task Guardar()
+    {
+        var guardo = await prioridadesServices.Guardar(prioridad);
+        if (guardo)
+        {
+            navigationManager.NavigateTo("/Prioridades/Index");
+        }
+    }
+
+    private void Volver()
+    {
+        navigationManager.NavigateTo("/Prioridades/Index");
+    }
+}

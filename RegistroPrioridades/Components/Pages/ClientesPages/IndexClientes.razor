@@ -1,67 +1,124 @@
 ﻿@page "/Clientes/Index"
 @inject ClientesServices clientesServices
-@inject NavigationManager Navigation
+@inject NavigationManager navigationManager
 
-<PageTitle>Lista de Clientes</PageTitle>
+<PageTitle>Clientes</PageTitle>
 
-@if (clientes == null)
-{
-    <p><em>Cargando...</em></p>
-}
-else if (clientes.Count == 0)
-{
-    <p>No hay clientes registrados.</p>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nombres</th>
-                <th>WhatsApp</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var cliente in clientes)
-            {
+<div class="border shadow-lg p-3 rounded">
+    <div class="card-header bg-primary text-white text-center py-2">
+        <h3 class="mb-0 font-weight-bold">Clientes</h3>
+    </div>
+
+    <div class="row mb-3 align-items-end">
+        <div class="col-md-3">
+            <label for="Filtro" class="form-label">Filtrar por:</label>
+            <select @bind="filtro" class="form-select">
+                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="id">ID</option>
+                <option value="nombres">Nombres</option>
+                <option value="whatsapp">WhatsApp</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="ValorFiltro" class="form-label">Buscar:</label>
+            <div class="input-group">
+                <input @bind="valorFiltro" class="form-control" placeholder="Buscar" />
+                <button @onclick="Buscar" class="btn btn-outline-secondary" type="button">
+                    <span class="bi bi-search"></span>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3 text-end">
+            <a href="/Clientes/Create" class="btn btn-success" type="button">
+                <i class="bi bi-plus-circle-fill"></i> Crear Nuevo Cliente
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="bg-primary text-white">
                 <tr>
-                    <td>@cliente.Nombres</td>
-                    <td>@cliente.WhatsApp</td>
-                    <td>
-                        <button class="btn btn-info" @onclick="() => VerDetalles(cliente.ClienteId)">Detalles</button>
-                        <button class="btn btn-warning" @onclick="() => Editar(cliente.ClienteId)">Editar</button>
-                        <button class="btn btn-danger" @onclick="() => Eliminar(cliente.ClienteId)">Eliminar</button>
-                    </td>
+                    <th>ClienteId</th>
+                    <th>Nombres</th>
+                    <th>WhatsApp</th>
+                    <th>Ver</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @if (clientes != null && clientes.Count > 0)
+                {
+                    @foreach (var cliente in clientes)
+                    {
+                        <tr>
+                            <td>@cliente.ClienteId</td>
+                            <td>@cliente.Nombres</td>
+                            <td>@cliente.WhatsApp</td>
+                            <td>
+                                <a class="btn btn-outline-primary" href="/Clientes/Details/@cliente.ClienteId">
+                                    <span class="bi bi-eye-fill"></span>
+                                </a>
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-success" href="/Clientes/Edit/@cliente.ClienteId">
+                                    <span class="bi bi-pencil-square"></span>
+                                </a>
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-danger" href="/Clientes/Delete/@cliente.ClienteId">
+                                    <span class="bi bi-trash"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">No se encontraron clientes.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer text-start">
+        <p style="font-weight: bold;">Total de Clientes: @clientes?.Count</p>
+    </div>
+</div>
 
 @code {
-    private List<Clientes> clientes;
+    private List<Clientes> clientes = new List<Clientes>();
+    private string filtro = "id";
+    private string? valorFiltro;
 
     protected override async Task OnInitializedAsync()
     {
-        clientes = await clientesServices.Listar(c => true); // Lista todos los clientes
+        clientes = await clientesServices.Listar(c => true);
     }
 
-    private void VerDetalles(int clienteId)
+    private async Task Buscar()
     {
-        Navigation.NavigateTo($"/Clientes/Details/{clienteId}");
-    }
-
-    private void Editar(int clienteId)
-    {
-        Navigation.NavigateTo($"/Clientes/Edit/{clienteId}");
-    }
-
-    private async Task Eliminar(int clienteId)
-    {
-        if (await clientesServices.Eliminar(clienteId))
+        if (!string.IsNullOrWhiteSpace(valorFiltro))
         {
-            clientes = await clientesServices.Listar(c => true); // Refrescar lista después de eliminar
+            if (filtro == "id" && int.TryParse(valorFiltro, out int ClienteId))
+            {
+                clientes = await clientesServices.Listar(c => c.ClienteId == ClienteId);
+            }
+            else if (filtro == "nombres")
+            {
+                clientes = await clientesServices.Listar(c => c.Nombres.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (filtro == "whatsapp")
+            {
+                clientes = await clientesServices.Listar(c => c.WhatsApp.Contains(valorFiltro));
+            }
+        }
+        else
+        {
+            clientes = await clientesServices.Listar(c => true);
         }
     }
 }

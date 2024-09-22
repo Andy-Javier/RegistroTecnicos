@@ -1,0 +1,63 @@
+﻿@page "/Prioridades/Index"
+@inject PrioridadesServices prioridadesServices
+@inject NavigationManager navigationManager
+
+<h3>Lista de Prioridades</h3>
+
+@if (prioridades != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Descripci&oacute;n</th>
+                <th>Tiempo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var prioridad in prioridades)
+            {
+                <tr>
+                    <td>@prioridad.Descripcion</td>
+                    <td>@prioridad.Tiempo</td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="@(() => Editar(prioridad.PrioridadId))">Editar</button>
+                        <button class="btn btn-danger" @onclick="@(() => Eliminar(prioridad.PrioridadId))">Eliminar</button>
+                        <button class="btn btn-info" @onclick="@(() => Detalles(prioridad.PrioridadId))">Detalles</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<button class="btn btn-success" @onclick="Crear">Crear Nueva Prioridad</button>
+
+@code {
+    private List<Prioridades> prioridades = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        prioridades = await prioridadesServices.Listar(p => true);
+    }
+
+    private void Crear()
+    {
+        navigationManager.NavigateTo("/Prioridades/Create");
+    }
+
+    private void Editar(int prioridadId)
+    {
+        navigationManager.NavigateTo($"/Prioridades/Edit/{prioridadId}");
+    }
+
+    private void Eliminar(int prioridadId)
+    {
+        navigationManager.NavigateTo($"/Prioridades/Delete/{prioridadId}");
+    }
+
+    private void Detalles(int prioridadId)
+    {
+        navigationManager.NavigateTo($"/Prioridades/Details/{prioridadId}");
+    }
+}

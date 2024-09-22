@@ -18,7 +18,7 @@ namespace RegistroTecnicos.Models
 
         [ForeignKey("TipoTecnico")]
         public int TipoTecnicoId { get; set; }
-        public TiposTecnicos? TipoTecnico { get; set; }
+        public TiposTecnicos TipoTecnico { get; set; }
 
     }
 }
