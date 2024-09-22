@@ -81,7 +81,7 @@ namespace RegistroTecnicos.Services
         }
          private async Task EnviarMensajeWhatsApp(string numero, int trabajoId)
         {
-            var mensaje = $"¡Hola! Su trabajo con ID {trabajoId} ya está listo. Gracias por confiar en nosotros.";
+            var mensaje = $"¡Hola! Su trabajo {trabajoId} está terminado.";
             var url = $"https://api.whatsapp.com/send?phone={numero}&text={Uri.EscapeDataString(mensaje)}";
             await Task.CompletedTask;
         }
