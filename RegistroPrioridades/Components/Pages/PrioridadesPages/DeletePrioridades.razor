@@ -1,0 +1,69 @@
+﻿@page "/Prioridades/Delete"
+@page "/Prioridades/Delete/{PrioridadId:int}"
+@inject PrioridadesServices prioridadesServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar Prioridad</PageTitle>
+
+@if (prioridad != null)
+{
+    <div class="container">
+        <div class="card shadow-header">
+            <div class="card-header bg-primary text-white text-center py-2 rounded">
+                <h3><strong>Eliminar Prioridad</strong></h3>
+            </div>
+            <div class="card-header">
+                <h5 class="text-danger">¿Estás seguro de que quieres eliminar esta prioridad?</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>PrioridadId:</strong> @prioridad.PrioridadId</li>
+                    <li><strong>Descripción:</strong> @prioridad.Descripcion</li>
+                    <li><strong>Tiempo (minutos):</strong> @prioridad.Tiempo</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-danger" @onclick="EliminarPrioridad">
+                    <i class="bi bi-trash-fill"></i> Eliminar
+                </button>
+                <button type="button" class="btn btn-primary" @onclick="Volver">
+                    <i class="bi bi-arrow-left-square-fill"></i> Volver
+                </button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>Prioridad no encontrada.</p>
+}
+
+@code {
+    [Parameter]
+    public int PrioridadId { get; set; }
+    public Prioridades? prioridad { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        prioridad = await prioridadesServices.Buscar(PrioridadId);
+    }
+
+    public async Task EliminarPrioridad()
+    {
+        if (prioridad != null)
+        {
+            // Llamar al método Eliminar con el objeto 'prioridad'
+            bool eliminado = await prioridadesServices.Eliminar(prioridad);
+            if (eliminado)
+            {
+                Volver();
+            }
+        }
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Prioridades/Index");
+    }
+}
