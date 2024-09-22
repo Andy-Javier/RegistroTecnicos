@@ -1,44 +1,95 @@
 ﻿@page "/Prioridades/Index"
 @inject PrioridadesServices prioridadesServices
 @inject NavigationManager navigationManager
+@rendermode InteractiveServer
 
-<h3>Lista de Prioridades</h3>
+<PageTitle>Prioridades</PageTitle>
 
-@if (prioridades != null)
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Descripci&oacute;n</th>
-                <th>Tiempo</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var prioridad in prioridades)
-            {
+<div class="border shadow-lg p-3 rounded">
+    <div class="card-header bg-primary text-white text-center py-2 rounded">
+        <h3 style="font-weight: bold;" class="mb-0">Lista de Prioridades</h3>
+    </div>
+
+    <div class="row mb-3 align-items-end">
+        <div class="col-md-3">
+            <label for="Filtro" class="form-label"></label>
+            <select @bind="filtro" class="form-select">
+                <option value="" disabled selected>Filtrar por:</option>
+                <option value="descripcion">Descripción</option>
+                <option value="tiempo">Tiempo (minutos)</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="ValorFiltro" class="form-label"></label>
+            <div class="input-group">
+                <input @bind="valorFiltro" class="form-control" placeholder="Buscar" />
+                <button @onclick="Buscar" class="btn btn-outline-secondary" type="button">
+                    <span class="bi bi-search"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="bg-primary text-white">
                 <tr>
-                    <td>@prioridad.Descripcion</td>
-                    <td>@prioridad.Tiempo</td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="@(() => Editar(prioridad.PrioridadId))">Editar</button>
-                        <button class="btn btn-danger" @onclick="@(() => Eliminar(prioridad.PrioridadId))">Eliminar</button>
-                        <button class="btn btn-info" @onclick="@(() => Detalles(prioridad.PrioridadId))">Detalles</button>
-                    </td>
+                    <th>Descripci&oacute;n</th>
+                    <th>Tiempo (en minutos)</th>
+                    <th>Acciones</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var prioridad in prioridades)
+                {
+                    <tr>
+                        <td>@prioridad.Descripcion</td>
+                        <td>@prioridad.Tiempo</td>
+                        <td>
+                            <button class="btn btn-primary" @onclick="@(() => Editar(prioridad.PrioridadId))">Editar</button>
+                            <button class="btn btn-danger" @onclick="@(() => Eliminar(prioridad.PrioridadId))">Eliminar</button>
+                            <button class="btn btn-info" @onclick="@(() => Detalles(prioridad.PrioridadId))">Detalles</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
-<button class="btn btn-success" @onclick="Crear">Crear Nueva Prioridad</button>
+    <div class="card-footer text-start">
+        <p style="font-weight: bold;">Total de Prioridades: @prioridades.Count</p>
+    </div>
+
+    <button class="btn btn-success" @onclick="Crear">Crear Nueva Prioridad</button>
+</div>
 
 @code {
     private List<Prioridades> prioridades = new();
+    private string filtro = "descripcion";
+    private string? valorFiltro;
 
     protected override async Task OnInitializedAsync()
     {
         prioridades = await prioridadesServices.Listar(p => true);
+    }
+
+    private async Task Buscar()
+    {
+        if (!string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            if (filtro == "descripcion")
+            {
+                prioridades = await prioridadesServices.Listar(p => p.Descripcion.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (filtro == "tiempo" && int.TryParse(valorFiltro, out int tiempo))
+            {
+                prioridades = await prioridadesServices.Listar(p => p.Tiempo == tiempo);
+            }
+        }
+        else
+        {
+            prioridades = await prioridadesServices.Listar(p => true);
+        }
     }
 
     private void Crear()
