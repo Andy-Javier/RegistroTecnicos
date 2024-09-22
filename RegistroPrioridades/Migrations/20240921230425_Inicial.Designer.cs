@@ -11,7 +11,7 @@ using RegistroTecnicos.DAL;
 namespace RegistroTecnicos.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20240915190919_Inicial")]
+    [Migration("20240921230425_Inicial")]
     partial class Inicial
     {
         /// <inheritdoc />
@@ -19,37 +19,6 @@ namespace RegistroTecnicos.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
-
-            modelBuilder.Entity("RegistroTecnicos.DAL.Trabajos", b =>
-                {
-                    b.Property<int>("TrabajoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ClienteId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("Monto")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TecnicoId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("TrabajoId");
-
-                    b.HasIndex("ClienteId");
-
-                    b.HasIndex("TecnicoId");
-
-                    b.ToTable("Trabajos");
-                });
 
             modelBuilder.Entity("RegistroTecnicos.Models.Clientes", b =>
                 {
@@ -69,6 +38,24 @@ namespace RegistroTecnicos.Migrations
                     b.HasKey("ClienteId");
 
                     b.ToTable("Clientes");
+                });
+
+            modelBuilder.Entity("RegistroTecnicos.Models.Prioridades", b =>
+                {
+                    b.Property<int>("PrioridadId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Tiempo")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PrioridadId");
+
+                    b.ToTable("Prioridades");
                 });
 
             modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
@@ -110,7 +97,49 @@ namespace RegistroTecnicos.Migrations
                     b.ToTable("TiposTecnicos");
                 });
 
-            modelBuilder.Entity("RegistroTecnicos.DAL.Trabajos", b =>
+            modelBuilder.Entity("RegistroTecnicos.Models.Trabajos", b =>
+                {
+                    b.Property<int>("TrabajoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Monto")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TecnicoId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TrabajoId");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("TecnicoId");
+
+                    b.ToTable("Trabajos");
+                });
+
+            modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
+                {
+                    b.HasOne("RegistroTecnicos.Models.TiposTecnicos", "TipoTecnico")
+                        .WithMany()
+                        .HasForeignKey("TipoTecnicoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TipoTecnico");
+                });
+
+            modelBuilder.Entity("RegistroTecnicos.Models.Trabajos", b =>
                 {
                     b.HasOne("RegistroTecnicos.Models.Clientes", "Cliente")
                         .WithMany()
@@ -127,17 +156,6 @@ namespace RegistroTecnicos.Migrations
                     b.Navigation("Cliente");
 
                     b.Navigation("Tecnico");
-                });
-
-            modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
-                {
-                    b.HasOne("RegistroTecnicos.Models.TiposTecnicos", "TipoTecnico")
-                        .WithMany()
-                        .HasForeignKey("TipoTecnicoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TipoTecnico");
                 });
 #pragma warning restore 612, 618
         }
