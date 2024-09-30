@@ -78,12 +78,6 @@ namespace RegistroTecnicos.Services
                 .Where(criterio)
                 .AsNoTracking()
                 .ToListAsync();
-        }
-         private async Task EnviarMensajeWhatsApp(string numero, int trabajoId)
-        {
-            var mensaje = $"¡Hola! Su trabajo {trabajoId} está terminado.";
-            var url = $"https://api.whatsapp.com/send?phone={numero}&text={Uri.EscapeDataString(mensaje)}";
-            await Task.CompletedTask;
-        }
+        }         
     }
 }
