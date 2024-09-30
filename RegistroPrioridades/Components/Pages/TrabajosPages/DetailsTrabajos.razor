@@ -11,6 +11,17 @@
         <p><strong>T&eacute;cnico:</strong> @trabajo?.Tecnico?.Nombre</p>
         <p><strong>Descripci&oacute;n:</strong> @trabajo?.Descripcion</p>
         <p><strong>Monto:</strong> @trabajo?.Monto</p>
+
+        @if (!string.IsNullOrEmpty(trabajo?.Cliente?.WhatsApp))
+        {
+            <a href="@GenerarUrlWhatsApp()" target="_blank" class="btn btn-success">
+                Enviar a WhatsApp
+            </a>
+        }
+        else
+        {
+            <p class="text-danger">No hay un número de WhatsApp registrado para este cliente.</p>
+        }
     </div>
 }
 else
@@ -25,5 +36,14 @@ else
     protected override async Task OnInitializedAsync()
     {
         trabajo = await trabajosServices.Buscar(TrabajoId);
+    }
+
+    private string GenerarUrlWhatsApp()
+    {
+        var mensaje = $"Hola {trabajo.Cliente.Nombres}, su trabajo '{trabajo.Descripcion}' ha sido completado. El total es {trabajo.Monto:C}. ¡Gracias por preferir el servicio de tecnicos de Messi!";
+        var numeroWhatsApp = trabajo.Cliente.WhatsApp.Replace(" ", "");
+        var urlWhatsApp = $"https://wa.me/{numeroWhatsApp}?text={Uri.EscapeDataString(mensaje)}";
+
+        return urlWhatsApp;
     }
 }
