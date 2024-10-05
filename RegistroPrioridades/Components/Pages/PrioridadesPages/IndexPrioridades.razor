@@ -46,9 +46,9 @@
                         <td>@prioridad.Descripcion</td>
                         <td>@prioridad.Tiempo</td>
                         <td>
-                            <button class="btn btn-primary" @onclick="@(() => Editar(prioridad.PrioridadId))">Editar</button>
-                            <button class="btn btn-danger" @onclick="@(() => Eliminar(prioridad.PrioridadId))">Eliminar</button>
-                            <button class="btn btn-info" @onclick="@(() => Detalles(prioridad.PrioridadId))">Detalles</button>
+                            <a href="@($"/Prioridades/Edit/{prioridad.PrioridadId}")" class="btn btn-primary">Editar</a>
+                            <a href="@($"/Prioridades/Delete/{prioridad.PrioridadId}")" class="btn btn-danger">Eliminar</a>
+                            <a href="@($"/Prioridades/Details/{prioridad.PrioridadId}")" class="btn btn-info">Detalles</a>
                         </td>
                     </tr>
                 }
@@ -60,7 +60,7 @@
         <p style="font-weight: bold;">Total de Prioridades: @prioridades.Count</p>
     </div>
 
-    <button class="btn btn-success" @onclick="Crear">Crear Nueva Prioridad</button>
+    <a href="/Prioridades/Create" class="btn btn-success">Crear Nueva Prioridad</a>
 </div>
 
 @code {
@@ -90,25 +90,5 @@
         {
             prioridades = await prioridadesServices.Listar(p => true);
         }
-    }
-
-    private void Crear()
-    {
-        navigationManager.NavigateTo("/Prioridades/Create");
-    }
-
-    private void Editar(int prioridadId)
-    {
-        navigationManager.NavigateTo($"/Prioridades/Edit/{prioridadId}");
-    }
-
-    private void Eliminar(int prioridadId)
-    {
-        navigationManager.NavigateTo($"/Prioridades/Delete/{prioridadId}");
-    }
-
-    private void Detalles(int prioridadId)
-    {
-        navigationManager.NavigateTo($"/Prioridades/Details/{prioridadId}");
     }
 }
