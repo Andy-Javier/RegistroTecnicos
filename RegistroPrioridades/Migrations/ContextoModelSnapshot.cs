@@ -104,7 +104,6 @@ namespace RegistroTecnicos.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Descripcion")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Fecha")
@@ -113,12 +112,17 @@ namespace RegistroTecnicos.Migrations
                     b.Property<decimal>("Monto")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("PrioridadId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("TecnicoId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("TrabajoId");
 
                     b.HasIndex("ClienteId");
+
+                    b.HasIndex("PrioridadId");
 
                     b.HasIndex("TecnicoId");
 
@@ -128,7 +132,7 @@ namespace RegistroTecnicos.Migrations
             modelBuilder.Entity("RegistroTecnicos.Models.Tecnicos", b =>
                 {
                     b.HasOne("RegistroTecnicos.Models.TiposTecnicos", "TipoTecnico")
-                        .WithMany()
+                        .WithMany("Tecnicos")
                         .HasForeignKey("TipoTecnicoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -144,6 +148,12 @@ namespace RegistroTecnicos.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RegistroTecnicos.Models.Prioridades", "Prioridad")
+                        .WithMany()
+                        .HasForeignKey("PrioridadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("RegistroTecnicos.Models.Tecnicos", "Tecnico")
                         .WithMany()
                         .HasForeignKey("TecnicoId")
@@ -152,7 +162,14 @@ namespace RegistroTecnicos.Migrations
 
                     b.Navigation("Cliente");
 
+                    b.Navigation("Prioridad");
+
                     b.Navigation("Tecnico");
+                });
+
+            modelBuilder.Entity("RegistroTecnicos.Models.TiposTecnicos", b =>
+                {
+                    b.Navigation("Tecnicos");
                 });
 #pragma warning restore 612, 618
         }
