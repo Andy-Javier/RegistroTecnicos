@@ -1,13 +1,14 @@
 ﻿@page "/Prioridades/Index"
 @inject PrioridadesServices prioridadesServices
 @inject NavigationManager navigationManager
+@inject IJSRuntime jsRuntime
 @rendermode InteractiveServer
 
 <PageTitle>Prioridades</PageTitle>
 
 <div class="border shadow-lg p-3 rounded">
     <div class="card-header bg-primary text-white text-center py-2 rounded">
-        <h3 style="font-weight: bold;" class="mb-0">Lista de Prioridades</h3>
+        <h3 style="font-weight: bold;" class="mb-0">Prioridades</h3>
     </div>
 
     <div class="row mb-3 align-items-end">
@@ -81,14 +82,21 @@
             {
                 prioridades = await prioridadesServices.Listar(p => p.Descripcion.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase));
             }
-            else if (filtro == "tiempo" && int.TryParse(valorFiltro, out int tiempo))
+            else if (filtro == "tiempo")
             {
-                prioridades = await prioridadesServices.Listar(p => p.Tiempo == tiempo);
+                if (int.TryParse(valorFiltro, out int tiempo))
+                {
+                    prioridades = await prioridadesServices.Listar(p => p.Tiempo == tiempo);
+                }
+                else
+                {
+                    await jsRuntime.InvokeVoidAsync("alert", "Por favor, introduce un valor numérico para el filtro de tiempo.");
+                }
             }
         }
         else
         {
-            prioridades = await prioridadesServices.Listar(p => true);
+            await jsRuntime.InvokeVoidAsync("alert", "El campo de búsqueda está vacío.");
         }
     }
 }
