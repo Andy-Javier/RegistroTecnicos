@@ -16,20 +16,20 @@ namespace RegistroTecnicos.Services
             Contexto = contexto;
         }
 
-        //Método Existe
+        // Método Existe
         public async Task<bool> Existe(int trabajoId)
         {
             return await Contexto.Trabajos.AnyAsync(t => t.TrabajoId == trabajoId);
         }
 
-        //Método Insertar
+        // Método Insertar
         private async Task<bool> Insertar(Trabajos trabajo)
         {
             Contexto.Trabajos.Add(trabajo);
             return await Contexto.SaveChangesAsync() > 0;
         }
 
-        //Método Modificar
+        // Método Modificar
         private async Task<bool> Modificar(Trabajos trabajo)
         {
             Contexto.Trabajos.Update(trabajo);
@@ -38,7 +38,7 @@ namespace RegistroTecnicos.Services
             return modificado;
         }
 
-        //Método Guardar (decide si insertar o modificar)
+        // Método Guardar (decide si insertar o modificar)
         public async Task<bool> Guardar(Trabajos trabajo)
         {
             if (!await Existe(trabajo.TrabajoId))
@@ -47,7 +47,7 @@ namespace RegistroTecnicos.Services
                 return await Modificar(trabajo);
         }
 
-        //Método Eliminar (compatibilidad con EF Core < 7.0)
+        // Método Eliminar (compatibilidad con EF Core < 7.0)
         public async Task<bool> Eliminar(int id)
         {
             var trabajo = await Contexto.Trabajos.FindAsync(id);
@@ -59,25 +59,27 @@ namespace RegistroTecnicos.Services
             return false;
         }
 
-        //Método Buscar (incluyendo Cliente y Técnico)
+        // Método Buscar (incluyendo Cliente, Técnico y Prioridad)
         public async Task<Trabajos?> Buscar(int id)
         {
             return await Contexto.Trabajos
                 .Include(t => t.Cliente)
                 .Include(t => t.Tecnico)
+                .Include(t => t.Prioridad) // Incluir Prioridad
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.TrabajoId == id);
         }
 
-        //Método Listar (criterio de búsqueda con relaciones)
+        // Método Listar (criterio de búsqueda con relaciones)
         public async Task<List<Trabajos>> Listar(Expression<Func<Trabajos, bool>> criterio)
         {
             return await Contexto.Trabajos
                 .Include(t => t.Cliente)
                 .Include(t => t.Tecnico)
+                .Include(t => t.Prioridad) // Incluir Prioridad
                 .Where(criterio)
                 .AsNoTracking()
                 .ToListAsync();
-        }         
+        }
     }
 }
