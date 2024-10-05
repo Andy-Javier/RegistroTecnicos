@@ -45,6 +45,23 @@
             </div>
         </div>
 
+        <!--TiposTecnicos-->
+        <div class="mb-3">
+            <label for="TipoTecnicoId"> Tipo de T&eacute;cnico: </label>
+            <div class="row">
+                <div class="col-4 ms-3">
+                    <InputSelect @bind-Value="tecnico.TipoTecnicoId" class="form-control">
+                        <option value="">Seleccione un tipo de técnico</option>
+                        @foreach (var tiposTecnicos in ListaTiposTecnicos)
+                        {
+                            <option value="@tiposTecnicos.TipoTecnicoId">@tiposTecnicos.Descripcion</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => tecnico.TipoTecnicoId)" />
+                </div>
+            </div>
+        </div>
+
         <div class="card-footer bg-light d-flex justify-content-center mt-3">
             <div class="btn-group">
 
@@ -53,22 +70,7 @@
                 <button type="button" class="btn btn-outline-danger" @onclick="Regresar"><span class="bi bi-arrow-bar-left"></span> Regresar </button>
             </div>
         </div>
-        <!--TiposTecnicos-->
-         <div class="mb-3">
-                <label for="TipoTecnicoId">Tipo de T&eacute;cnico:</label>
-                <div class="row">
-                    <div class="col-4 ms-3">
-                        <InputSelect @bind-Value="tecnico.TipoTecnicoId" class="form-control">
-                            <option value="">Seleccione un tipo de técnico</option>
-                            @foreach (var tiposTecnicos in ListaTiposTecnicos)
-                            {
-                                <option value="@tiposTecnicos.TipoTecnicoId">@tiposTecnicos.Descripcion</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => tecnico.TipoTecnicoId)" />
-                    </div>
-                </div>
-            </div>
+       
     </div>
 </EditForm>
 
