@@ -2,6 +2,7 @@
 @inject TrabajosServices trabajosServices
 @inject ClientesServices clientesServices
 @inject TecnicosServices tecnicosServices
+@inject PrioridadesServices prioridadesServices  
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
@@ -50,6 +51,19 @@
                 <ValidationMessage For="@(() => trabajo.TecnicoId)" />
             </div>
 
+            @* Prioridad *@
+            <div class="mb-3">
+                <label for="PrioridadId" class="form-label">Prioridad</label>
+                <InputSelect @bind-Value="trabajo.PrioridadId" class="form-control">
+                    <option value="">Seleccione una prioridad</option>
+                    @foreach (var prioridad in listaPrioridades)
+                    {
+                        <option value="@prioridad.PrioridadId">@prioridad.Descripcion</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => trabajo.PrioridadId)" />
+            </div>
+
             @* Descripción *@
             <div class="mb-3">
                 <label for="Descripcion" class="form-label">Descripción</label>
@@ -76,19 +90,31 @@
     public Trabajos trabajo { get; set; } = new Trabajos();
     public List<Clientes> listaClientes { get; set; } = new List<Clientes>();
     public List<Tecnicos> listaTecnicos { get; set; } = new List<Tecnicos>();
+    public List<Prioridades> listaPrioridades { get; set; } = new List<Prioridades>();  // Lista para prioridades
 
     protected override async Task OnInitializedAsync()
     {
         listaClientes = await clientesServices.Listar(c => c.ClienteId > 0);
         listaTecnicos = await tecnicosServices.Listar(t => t.TecnicoId > 0);
+        listaPrioridades = await prioridadesServices.Listar(p => p.PrioridadId > 0);  // Cargar prioridades
     }
 
     private async Task Guardar()
     {
-        var guardo = await trabajosServices.Guardar(trabajo);
-        if (guardo)
+        try
         {
-            navigationManager.NavigateTo("/Trabajos/Index");
+            var guardo = await trabajosServices.Guardar(trabajo);
+            if (guardo)
+            {
+                navigationManager.NavigateTo("/Trabajos/Index");
+            }
+            else
+            {
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar: {ex.Message}");
         }
     }
 

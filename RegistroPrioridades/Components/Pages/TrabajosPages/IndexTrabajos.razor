@@ -55,6 +55,7 @@
                     <th>T&eacute;cnicoId</th>
                     <th>T&eacute;cnico</th>
                     <th>Descripci&oacute;n</th>
+                    <th>Prioridad</th>
                     <th>Monto</th>
                     <th>Ver</th>
                     <th>Editar</th>
@@ -72,6 +73,7 @@
                         <td>@trabajo.Tecnico.TecnicoId</td>
                         <td>@trabajo.Tecnico.Nombre</td>
                         <td>@trabajo.Descripcion</td>
+                        <td>@trabajo.Prioridad.Descripcion</td> 
                         <td>@trabajo.Monto.ToString("C")</td>
                         <td>
                             <a class="btn btn-outline-primary" href="/Trabajos/Details/@trabajo.TrabajoId">
@@ -87,7 +89,6 @@
                             <a class="btn btn-outline-danger" href="/Trabajos/Delete/@trabajo.TrabajoId">
                                 <span class="bi bi-trash"></span>
                             </a>
-
                         </td>
                     </tr>
                 }
