@@ -38,6 +38,6 @@ namespace RegistroTecnicos.Models
         [ForeignKey("PrioridadId")]
         public Prioridades? Prioridad { get; set; }
 
-        public ICollection<TrabajosDetalle>? TrabajosDetalles { get; set; } // Relación con TrabajosDetalle
+        public ICollection<TrabajosDetalle>? TrabajosDetalles { get; set; }
     }
 }

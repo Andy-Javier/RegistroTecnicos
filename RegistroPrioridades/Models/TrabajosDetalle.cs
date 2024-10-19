@@ -12,13 +12,13 @@ namespace RegistroTecnicos.Models
         public int TrabajoId { get; set; }
 
         [ForeignKey("TrabajoId")]
-        public Trabajos? Trabajo { get; set; } // Relación con Trabajos
+        public Trabajos? Trabajo { get; set; }
 
         [Required(ErrorMessage = "El ArticuloId es requerido.")]
         public int ArticuloId { get; set; }
 
         [ForeignKey("ArticuloId")]
-        public Articulos? Articulo { get; set; } // Relación con Articulos
+        public Articulos? Articulo { get; set; }
 
         [Required(ErrorMessage = "La cantidad es requerida.")]
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a 0.")]

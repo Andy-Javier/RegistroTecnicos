@@ -76,7 +76,7 @@ namespace RegistroTecnicos.Services
             return await Contexto.Trabajos
                 .Include(t => t.Cliente)
                 .Include(t => t.Tecnico)
-                .Include(t => t.Prioridad) // Incluir Prioridad
+                .Include(t => t.Prioridad)
                 .Where(criterio)
                 .AsNoTracking()
                 .ToListAsync();

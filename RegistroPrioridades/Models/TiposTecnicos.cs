@@ -12,6 +12,6 @@ namespace RegistroTecnicos.Models
         [RegularExpression(@"[a-zA-Z\s]+$", ErrorMessage = "Solo son permitidas las letras")]
         public string? Descripcion { get; set; }
 
-        public ICollection<Tecnicos>? Tecnicos { get; set; } // Propiedad de navegación
+        public ICollection<Tecnicos>? Tecnicos { get; set; }
     }
 }
