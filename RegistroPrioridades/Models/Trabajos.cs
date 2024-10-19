@@ -8,21 +8,25 @@ namespace RegistroTecnicos.Models
         [Key]
         public int TrabajoId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "La fecha es obligatoria.")]
         public DateTime Fecha { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El cliente es obligatorio.")]
         public int ClienteId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El técnico es obligatorio.")]
         public int TecnicoId { get; set; }
 
-        [Required]
-        public int PrioridadId { get; set; }  
+        [Required(ErrorMessage = "La prioridad es obligatoria.")]
+        public int PrioridadId { get; set; }
 
+        [StringLength(500, ErrorMessage = "La descripción no puede exceder los 500 caracteres.")]
+        [RegularExpression(@"^[a-zA-Z0-9\s,.'-]+$", ErrorMessage = "La descripción contiene caracteres no válidos.")]
         public string? Descripcion { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "El monto es obligatorio.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor que cero.")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Monto { get; set; }
 
         [ForeignKey("ClienteId")]
@@ -31,7 +35,9 @@ namespace RegistroTecnicos.Models
         [ForeignKey("TecnicoId")]
         public Tecnicos? Tecnico { get; set; }
 
-        [ForeignKey("PrioridadId")]  
-        public Prioridades? Prioridad { get; set; } 
+        [ForeignKey("PrioridadId")]
+        public Prioridades? Prioridad { get; set; }
+
+        public ICollection<TrabajosDetalle>? TrabajosDetalles { get; set; } // Relación con TrabajosDetalle
     }
 }
