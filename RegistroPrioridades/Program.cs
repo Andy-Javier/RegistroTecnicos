@@ -21,13 +21,18 @@ namespace RegistroTecnicos
             // Agregamos el contexto al builder con el ConStr
             builder.Services.AddDbContext<Contexto>(Options => Options.UseSqlite(ConStr));
 
-            //Inyectar el services
+            // Inyectar los servicios existentes
             builder.Services.AddScoped<TecnicosServices>();
             builder.Services.AddScoped<TiposTecnicosServices>();
             builder.Services.AddScoped<ClientesServices>();
             builder.Services.AddScoped<TrabajosServices>();
             builder.Services.AddScoped<PrioridadesServices>();
+            builder.Services.AddScoped<ArticulosServices>();  
+            builder.Services.AddScoped<TrabajosDetalleServices>();  
+
+            // Inyectar BlazorBootstrap
             builder.Services.AddBlazorBootstrap();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
