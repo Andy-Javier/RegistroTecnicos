@@ -12,6 +12,22 @@ namespace RegistroTecnicos.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Articulos",
+                columns: table => new
+                {
+                    ArticuloId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
+                    Costo = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Existencia = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Articulos", x => x.ArticuloId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Clientes",
                 columns: table => new
                 {
@@ -83,8 +99,8 @@ namespace RegistroTecnicos.Migrations
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     TecnicoId = table.Column<int>(type: "INTEGER", nullable: false),
                     PrioridadId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: true),
-                    Monto = table.Column<decimal>(type: "TEXT", nullable: false)
+                    Descripcion = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,6 +125,35 @@ namespace RegistroTecnicos.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TrabajosDetalle",
+                columns: table => new
+                {
+                    DetalleId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    TrabajoId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ArticuloId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Cantidad = table.Column<int>(type: "INTEGER", nullable: false),
+                    Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Costo = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TrabajosDetalle", x => x.DetalleId);
+                    table.ForeignKey(
+                        name: "FK_TrabajosDetalle_Articulos_ArticuloId",
+                        column: x => x.ArticuloId,
+                        principalTable: "Articulos",
+                        principalColumn: "ArticuloId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TrabajosDetalle_Trabajos_TrabajoId",
+                        column: x => x.TrabajoId,
+                        principalTable: "Trabajos",
+                        principalColumn: "TrabajoId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Tecnicos_TipoTecnicoId",
                 table: "Tecnicos",
@@ -128,11 +173,27 @@ namespace RegistroTecnicos.Migrations
                 name: "IX_Trabajos_TecnicoId",
                 table: "Trabajos",
                 column: "TecnicoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrabajosDetalle_ArticuloId",
+                table: "TrabajosDetalle",
+                column: "ArticuloId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TrabajosDetalle_TrabajoId",
+                table: "TrabajosDetalle",
+                column: "TrabajoId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "TrabajosDetalle");
+
+            migrationBuilder.DropTable(
+                name: "Articulos");
+
             migrationBuilder.DropTable(
                 name: "Trabajos");
 
