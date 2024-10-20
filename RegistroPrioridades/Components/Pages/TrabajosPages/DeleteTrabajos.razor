@@ -1,28 +1,88 @@
-﻿@page "/Trabajos/Delete/{TrabajoId:int}"
+﻿@page "/Trabajos/Delete"
+@page "/Trabajos/Delete/{TrabajoId:int}"
 @inject TrabajosServices trabajosServices
 @inject NavigationManager navigationManager
+@rendermode InteractiveServer
 
-<h3>Eliminar Trabajo</h3>
+<PageTitle>Eliminar Trabajo</PageTitle>
 
-<div>
-    <p>¿Est&aacute; seguro de que desea eliminar este trabajo?</p>
+<div class="container">
+    <div class="card shadow-header">
+        <div class="card-header bg-primary text-white text-center py-2 rounded">
+            <h3><strong>Eliminar Trabajo</strong></h3>
+        </div>
+        <div class="card-header">
+            <h5 class="text-danger">¿Estás seguro de que quieres eliminar este trabajo?</h5>
+        </div>
 
-    <button class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
-    <button class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-lg">
+                        <div class="card-header">
+                            <h3 class="text-center"><strong>Datos del Trabajo</strong></h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="border-primary border-2 borde">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <ul class="list-unstyled">
+                                                <li><strong>TrabajoId:</strong> @trabajo.TrabajoId</li>
+                                                <li><strong>Descripción:</strong> @trabajo.Descripcion</li>
+                                                <li><strong>Fecha:</strong> @trabajo.Fecha.ToString("dd/MM/yyyy")</li>
+                                                <li><strong>Monto:</strong> @trabajo.Monto.ToString("C")</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="button" class="btn btn-danger" @onclick="EliminarTrabajo"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button type="button" class="btn btn-primary" @onclick="Volver"><i class="bi bi-arrow-left-square-fill"></i> Volver</button>
+        </div>
+    </div>
 </div>
 
-@code {
-    [Parameter] public int TrabajoId { get; set; }
+@if (trabajo == null)
+{
+    <p>Trabajo no encontrado.</p>
+}
 
-    private async Task Eliminar()
+@code {
+    [Parameter]
+    public int TrabajoId { get; set; }
+    public Trabajos? trabajo { get; set; } = new Trabajos();
+
+    protected override async Task OnInitializedAsync()
     {
-        if (await trabajosServices.Eliminar(TrabajoId))
+        if (TrabajoId != 0)
         {
-            navigationManager.NavigateTo("/Trabajos/Index");
+            trabajo = await trabajosServices.Buscar(TrabajoId);
         }
     }
 
-    private void Cancelar()
+    public async Task EliminarTrabajo()
+    {
+        if (TrabajoId == 0 || trabajo == null)
+        {
+            return;
+        }
+
+        var eliminado = await trabajosServices.Eliminar(TrabajoId);
+        if (eliminado)
+        {
+            Volver();
+        }
+    }
+
+    public void Volver()
     {
         navigationManager.NavigateTo("/Trabajos/Index");
     }
