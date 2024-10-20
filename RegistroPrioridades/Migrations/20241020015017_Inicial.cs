@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace RegistroTecnicos.Migrations
 {
     /// <inheritdoc />
@@ -20,7 +22,7 @@ namespace RegistroTecnicos.Migrations
                     Descripcion = table.Column<string>(type: "TEXT", nullable: false),
                     Costo = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Existencia = table.Column<int>(type: "INTEGER", nullable: false)
+                    Existencia = table.Column<decimal>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -98,9 +100,9 @@ namespace RegistroTecnicos.Migrations
                     Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     TecnicoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    PrioridadId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
+                    Monto = table.Column<decimal>(type: "TEXT", nullable: false),
+                    PrioridadId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -131,7 +133,7 @@ namespace RegistroTecnicos.Migrations
                 {
                     DetalleId = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    TrabajoId = table.Column<int>(type: "INTEGER", nullable: false),
+                    TrabajosId = table.Column<int>(type: "INTEGER", nullable: false),
                     ArticuloId = table.Column<int>(type: "INTEGER", nullable: false),
                     Cantidad = table.Column<int>(type: "INTEGER", nullable: false),
                     Precio = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -147,11 +149,23 @@ namespace RegistroTecnicos.Migrations
                         principalColumn: "ArticuloId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_TrabajosDetalle_Trabajos_TrabajoId",
-                        column: x => x.TrabajoId,
+                        name: "FK_TrabajosDetalle_Trabajos_TrabajosId",
+                        column: x => x.TrabajosId,
                         principalTable: "Trabajos",
                         principalColumn: "TrabajoId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Articulos",
+                columns: new[] { "ArticuloId", "Costo", "Descripcion", "Existencia", "Precio" },
+                values: new object[,]
+                {
+                    { 1, 300.0m, "RTX 4060", 15m, 400.0m },
+                    { 2, 450.0m, "RTX 4070", 10m, 600.0m },
+                    { 3, 650.0m, "RTX 4070 Ti", 8m, 800.0m },
+                    { 4, 900.0m, "RTX 4080", 5m, 1200.0m },
+                    { 5, 1600.0m, "RTX 4090", 3m, 2100.0m }
                 });
 
             migrationBuilder.CreateIndex(
@@ -180,9 +194,9 @@ namespace RegistroTecnicos.Migrations
                 column: "ArticuloId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TrabajosDetalle_TrabajoId",
+                name: "IX_TrabajosDetalle_TrabajosId",
                 table: "TrabajosDetalle",
-                column: "TrabajoId");
+                column: "TrabajosId");
         }
 
         /// <inheritdoc />
