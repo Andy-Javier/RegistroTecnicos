@@ -6,32 +6,30 @@ namespace RegistroTecnicos.Models
     public class TrabajosDetalle
     {
         [Key]
-        public int DetalleId { get; set; }
+        public int? DetalleId { get; set; }
 
-        [Required(ErrorMessage = "El TrabajoId es requerido.")]
-        public int TrabajoId { get; set; }
+        [ForeignKey("TrabajosId")]
+        public Trabajos? Trabajos { get; set; }
 
-        [ForeignKey("TrabajoId")]
-        public Trabajos? Trabajo { get; set; }
-
-        [Required(ErrorMessage = "El ArticuloId es requerido.")]
-        public int ArticuloId { get; set; }
+        [Required(ErrorMessage = "El Trabajo es obligatorio.")]
+        public int? TrabajosId { get; set; }
 
         [ForeignKey("ArticuloId")]
-        public Articulos? Articulo { get; set; }
+        public Articulos? Articulos { get; set; }
 
-        [Required(ErrorMessage = "La cantidad es requerida.")]
+        [Required(ErrorMessage = "El Artículo es obligatorio.")]
+        public int? ArticuloId { get; set; }
+
+        [Required(ErrorMessage = "La cantidad es obligatoria.")]
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser mayor a 0.")]
         public int Cantidad { get; set; }
 
-        [Required(ErrorMessage = "El precio es requerido.")]
+        [Required(ErrorMessage = "El precio es obligatorio.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El precio debe ser mayor que 0.")]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Precio { get; set; }
+        public decimal? Precio { get; set; }
 
-        [Required(ErrorMessage = "El costo es requerido.")]
+        [Required(ErrorMessage = "El costo es obligatorio.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El costo debe ser mayor que 0.")]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Costo { get; set; }
+        public decimal? Costo { get; set; }
     }
 }

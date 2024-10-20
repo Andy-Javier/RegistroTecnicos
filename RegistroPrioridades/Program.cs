@@ -28,7 +28,6 @@ namespace RegistroTecnicos
             builder.Services.AddScoped<TrabajosServices>();
             builder.Services.AddScoped<PrioridadesServices>();
             builder.Services.AddScoped<ArticulosServices>();  
-            builder.Services.AddScoped<TrabajosDetalleServices>();  
 
             // Inyectar BlazorBootstrap
             builder.Services.AddBlazorBootstrap();
