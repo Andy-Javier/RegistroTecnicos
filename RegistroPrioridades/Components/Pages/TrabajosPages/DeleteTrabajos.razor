@@ -28,10 +28,10 @@
                                     <div class="row">
                                         <div class="col-md-8">
                                             <ul class="list-unstyled">
-                                                <li><strong>TrabajoId:</strong> @trabajo.TrabajoId</li>
-                                                <li><strong>Descripción:</strong> @trabajo.Descripcion</li>
-                                                <li><strong>Fecha:</strong> @trabajo.Fecha.ToString("dd/MM/yyyy")</li>
-                                                <li><strong>Monto:</strong> @trabajo.Monto.ToString("C")</li>
+                                                <li><strong>TrabajoId:</strong> @trabajo?.TrabajoId</li>
+                                                <li><strong>Descripción:</strong> @trabajo?.Descripcion</li>
+                                                <li><strong>Fecha:</strong> @trabajo?.Fecha.ToString("dd/MM/yyyy")</li>
+                                                <li><strong>Monto:</strong> @trabajo?.Monto.ToString("C")</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -58,31 +58,35 @@
 @code {
     [Parameter]
     public int TrabajoId { get; set; }
-    public Trabajos? trabajo { get; set; } = new Trabajos();
+    public Trabajos? trabajo { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         if (TrabajoId != 0)
         {
             trabajo = await trabajosServices.Buscar(TrabajoId);
+            if (trabajo == null)
+            {
+                navigationManager.NavigateTo("/Trabajos/Index");
+            }
         }
     }
 
-    public async Task EliminarTrabajo()
+    private async Task EliminarTrabajo()
     {
-        if (TrabajoId == 0 || trabajo == null)
+        if (trabajo == null)
         {
             return;
         }
 
-        var eliminado = await trabajosServices.Eliminar(TrabajoId);
+        bool eliminado = await trabajosServices.Eliminar(TrabajoId);
         if (eliminado)
         {
             Volver();
         }
     }
 
-    public void Volver()
+    private void Volver()
     {
         navigationManager.NavigateTo("/Trabajos/Index");
     }
