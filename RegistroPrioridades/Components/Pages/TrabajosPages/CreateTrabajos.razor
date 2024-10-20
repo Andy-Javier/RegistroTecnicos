@@ -41,9 +41,9 @@
 
             @* Técnico *@
             <div class="mb-3">
-                <label for="TecnicoId" class="form-label">Técnico</label>
+                <label for="TecnicoId" class="form-label">T&eacute;cnico</label>
                 <InputSelect @bind-Value="trabajo.TecnicoId" class="form-control">
-                    <option value="">Seleccione un técnico</option>
+                    <option value="">Seleccione un t&eacute;cnico</option>
                     @foreach (var tecnico in listaTecnicos)
                     {
                         <option value="@tecnico.TecnicoId">@tecnico.Nombre</option>
@@ -200,7 +200,7 @@
 
     private void Nuevo()
     {
-        // aqui va la logica para cuando vaya a agregar un nuevo articulo
+        // aqui irá la logica para cuando vaya a agregar un nuevo articulo
     }
 
     private async Task AgregarDetalle()
