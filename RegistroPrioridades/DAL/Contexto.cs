@@ -19,52 +19,6 @@ namespace RegistroTecnicos.DAL
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Trabajos>()
-                .HasOne(t => t.Cliente)
-                .WithMany()
-                .HasForeignKey(t => t.ClienteId);
-
-            modelBuilder.Entity<Trabajos>()
-                .HasOne(t => t.Tecnico)
-                .WithMany()
-                .HasForeignKey(t => t.TecnicoId);
-
-            modelBuilder.Entity<Trabajos>()
-                .HasOne(t => t.Prioridades)
-                .WithMany()
-                .HasForeignKey(t => t.PrioridadId);
-
-            modelBuilder.Entity<TiposTecnicos>()
-                .HasMany(t => t.Tecnicos)
-                .WithOne(t => t.TipoTecnico)
-                .HasForeignKey(t => t.TipoTecnicoId);
-
-            modelBuilder.Entity<Articulos>(entity =>
-            {
-                entity.HasKey(e => e.ArticuloId);
-                entity.Property(e => e.Descripcion).IsRequired();
-                entity.Property(e => e.Costo).IsRequired().HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Precio).IsRequired().HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Existencia).IsRequired();
-            });
-
-            modelBuilder.Entity<TrabajosDetalle>(entity =>
-            {
-                entity.HasKey(e => e.DetalleId);
-                entity.Property(e => e.Cantidad).IsRequired();
-                entity.Property(e => e.Precio).IsRequired().HasColumnType("decimal(18,2)");
-                entity.Property(e => e.Costo).IsRequired().HasColumnType("decimal(18,2)");
-
-                entity.HasOne(td => td.Trabajos)
-                      .WithMany(t => t.TrabajosDetalle)
-                      .HasForeignKey(td => td.TrabajosId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(td => td.Articulos)
-                      .WithMany()
-                      .HasForeignKey(td => td.ArticuloId)
-                      .OnDelete(DeleteBehavior.Restrict);
-            });           
             modelBuilder.Entity<Articulos>().HasData(
                 new Articulos
                 {
