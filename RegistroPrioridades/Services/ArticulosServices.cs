@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
+using System.Linq.Expressions;
 
 namespace RegistroTecnicos.Services;
 
@@ -13,33 +14,42 @@ public class ArticulosServices
         _contexto = contexto;
     }
 
-    public async Task<bool> Guardar(Articulos articulo)
+    public async Task<List<Articulos>> ListaArticulos()
     {
-        if (articulo.ArticuloId == 0)
-            _contexto.Set<Articulos>().Add(articulo); 
-        else
-            _contexto.Set<Articulos>().Update(articulo);
-        return await _contexto.SaveChangesAsync() > 0;
+        return await _contexto.Articulos
+            .AsNoTracking()
+            .ToListAsync();
     }
 
-    public async Task<Articulos> Buscar(int id)
+    public async Task<Articulos?> ObtenerArticuloPorId(int id)
     {
-        return await _contexto.Set<Articulos>().FindAsync(id);
+        return await _contexto.Articulos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.ArticuloId == id);
     }
 
-    public async Task<bool> Eliminar(int id)
+    public async Task ActualizarExistencia(int articuloId, decimal cantidad)
     {
-        var articulo = await _contexto.Set<Articulos>().FindAsync(id); 
+        var articulo = await _contexto.Articulos.FindAsync(articuloId);
         if (articulo != null)
         {
-            _contexto.Set<Articulos>().Remove(articulo); 
-            return await _contexto.SaveChangesAsync() > 0;
+            articulo.Existencia -= (int)cantidad;
+            _contexto.Articulos.Update(articulo);
+            await _contexto.SaveChangesAsync();
         }
-        return false;
     }
 
-    public async Task<List<Articulos>> Listar()
+
+    public async Task AgregarCantidad(int articuloId, int cantidad)
     {
-        return await _contexto.Set<Articulos>().ToListAsync(); 
+        var articulo = await _contexto.Articulos.FindAsync(articuloId);
+
+        if (articulo != null)
+        {
+            articulo.Existencia += cantidad;
+
+            await _contexto.SaveChangesAsync();
+        }
     }
+
 }
