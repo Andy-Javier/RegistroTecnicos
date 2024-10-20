@@ -25,7 +25,7 @@ namespace RegistroTecnicos.Migrations
 
                     b.Property<decimal?>("Costo")
                         .IsRequired()
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
@@ -37,7 +37,7 @@ namespace RegistroTecnicos.Migrations
 
                     b.Property<decimal?>("Precio")
                         .IsRequired()
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("ArticuloId");
 
@@ -214,11 +214,11 @@ namespace RegistroTecnicos.Migrations
 
                     b.Property<decimal?>("Costo")
                         .IsRequired()
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal?>("Precio")
                         .IsRequired()
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("TrabajosId")
                         .IsRequired()
@@ -276,7 +276,7 @@ namespace RegistroTecnicos.Migrations
                     b.HasOne("RegistroTecnicos.Models.Articulos", "Articulos")
                         .WithMany()
                         .HasForeignKey("ArticuloId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RegistroTecnicos.Models.Trabajos", "Trabajos")
