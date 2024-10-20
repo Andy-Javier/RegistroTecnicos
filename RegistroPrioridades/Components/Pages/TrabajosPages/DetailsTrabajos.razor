@@ -1,49 +1,128 @@
-﻿@page "/Trabajos/Details/{TrabajoId:int}"
+﻿@page "/Trabajos/Details"
+@page "/Trabajos/Details/{TrabajoId:int}"
 @inject TrabajosServices trabajosServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
 
-<h3>Detalles del Trabajo</h3>
+<PageTitle>Detalles del Trabajo</PageTitle>
 
 @if (trabajo != null)
 {
-    <div>
-        <p><strong>Fecha:</strong> @trabajo?.Fecha</p>
-        <p><strong>Cliente:</strong> @trabajo?.Cliente?.Nombres</p>
-        <p><strong>T&eacute;cnico:</strong> @trabajo?.Tecnico?.Nombre</p>
-        <p><strong>Descripci&oacute;n:</strong> @trabajo?.Descripcion</p>
-        <p><strong>Monto:</strong> @trabajo?.Monto</p>
+    <div class="container">
+        <div class="card shadow-header">
+            <div class="card-header bg-primary text-white text-center py-2 rounded">
+                <h3 class="text-center"><strong>Detalles del Trabajo</strong></h3>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><strong>TrabajoId:</strong> @trabajo?.TrabajoId</li>
+                                <li><strong>Fecha:</strong> @trabajo?.Fecha.ToString("dd/MM/yyyy")</li>
+                                <li><strong>Cliente:</strong> @trabajo?.Cliente?.Nombres</li>
+                                <li><strong>Técnico:</strong> @trabajo?.Tecnico?.Nombre</li>
+                                <li><strong>Descripción:</strong> @trabajo?.Descripcion</li>
+                                <li><strong>Monto:</strong> @trabajo?.Monto.ToString("C")</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-        @if (!string.IsNullOrEmpty(trabajo?.Cliente?.WhatsApp))
-        {
-            <a href="@GenerarUrlWhatsApp()" target="_blank" class="btn btn-success">
-                Enviar a WhatsApp
-            </a>
-        }
-        else
-        {
-            <p class="text-danger">No hay un número de WhatsApp registrado para este cliente.</p>
-        }
+                @* Detalles de artículos utilizados *@
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>Detalles de Artículos Utilizados</h5>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Artículo</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (trabajo != null)
+                                {
+                                    <div class="container">
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                <li><strong>TrabajoId:</strong> @trabajo?.TrabajoId</li>
+                                                <li><strong>Fecha:</strong> @trabajo?.Fecha.ToString("dd/MM/yyyy")</li>
+                                                <li><strong>Cliente:</strong> @trabajo?.Cliente?.Nombres</li>
+                                                <li><strong>Técnico:</strong> @trabajo?.Tecnico?.Nombre</li>
+                                                <li><strong>Descripción:</strong> @trabajo?.Descripcion</li>
+                                                <li><strong>Monto:</strong> @trabajo?.Monto.ToString("C")</li> 
+                                            </ul>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p>Trabajo no encontrado.</p>
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-success" @onclick="EnviarWhatsApp">
+                    <i class="bi bi-whatsapp"></i> Enviar WhatsApp
+                </button>
+
+                @* Mensaje de notificación *@
+                @if (!string.IsNullOrEmpty(notificacion))
+                {
+                    <div class="alert alert-info mt-3">@notificacion</div>
+                }
+
+                <button type="button" class="btn btn-primary" @onclick="Volver">
+                    <i class="bi bi-arrow-left-square-fill"></i> Volver
+                </button>
+            </div>
+        </div>
     </div>
 }
 else
 {
-    <p>Cargando...</p>
+    <p>Trabajo no encontrado.</p>
 }
 
 @code {
-    [Parameter] public int TrabajoId { get; set; }
-    private Trabajos? trabajo;
+    [Parameter]
+    public int TrabajoId { get; set; }
+    public Trabajos? trabajo { get; set; }
+    private string? notificacion;
 
     protected override async Task OnInitializedAsync()
     {
         trabajo = await trabajosServices.Buscar(TrabajoId);
+        if (trabajo == null)
+        {
+            navigationManager.NavigateTo("/Trabajos/Index");
+        }
     }
 
-    private string GenerarUrlWhatsApp()
+    public void Volver()
     {
-        var mensaje = $"Hola {trabajo.Cliente.Nombres}, su trabajo '{trabajo.Descripcion}' ha sido completado. El total es {trabajo.Monto:C}. ¡Gracias por preferir el servicio de tecnicos de Messi!";
-        var numeroWhatsApp = trabajo.Cliente.WhatsApp.Replace(" ", "");
-        var urlWhatsApp = $"https://wa.me/{numeroWhatsApp}?text={Uri.EscapeDataString(mensaje)}";
+        navigationManager.NavigateTo("/Trabajos/Index");
+    }
 
-        return urlWhatsApp;
+    public void EnviarWhatsApp()
+    {
+        if (trabajo?.Cliente != null && !string.IsNullOrEmpty(trabajo.Cliente.WhatsApp))
+        {
+            var mensaje = $"Hola {trabajo.Cliente.Nombres}, su trabajo '{trabajo.Descripcion}' ha sido completado. El total es {trabajo.Monto:C}. ¡Gracias por preferir el servicio de tecnicos de Andy!";
+            var urlWhatsApp = $"https://wa.me/{trabajo.Cliente.WhatsApp.Replace(" ", "")}?text={Uri.EscapeDataString(mensaje)}";
+
+            navigationManager.NavigateTo(urlWhatsApp, forceLoad: true);
+            notificacion = "Mensaje enviado correctamente.";
+        }
+        else
+        {
+            notificacion = "Error: No se pudo enviar el mensaje. El cliente no tiene un número de WhatsApp registrado.";
+        }
     }
 }
