@@ -3,36 +3,41 @@ using RegistroTecnicos.Models;
 using RegistroTecnicos.DAL;
 using System.Linq.Expressions;
 
-
 namespace RegistroTecnicos.Services
 {
     public class TecnicosServices
     {
-        private readonly Contexto Contexto;
+        private readonly ContextoFactory _contextoFactory;
 
-        public TecnicosServices(Contexto contexto)
+        public TecnicosServices(ContextoFactory contextoFactory)
         {
-            Contexto = contexto;
+            _contextoFactory = contextoFactory;
+        }
+
+        private Contexto GetContext()
+        {
+            return _contextoFactory.CreateDbContext(new string[] { });
         }
 
         public async Task<bool> Existe(int TecnicoId)
         {
-            return await Contexto.Tecnicos.AnyAsync(p => p.TecnicoId == TecnicoId);
-
+            using var contexto = GetContext();
+            return await contexto.Tecnicos.AnyAsync(p => p.TecnicoId == TecnicoId);
         }
 
         private async Task<bool> Insertar(Tecnicos tecnico)
         {
-            Contexto.Tecnicos.Add(tecnico);
-            return await Contexto.SaveChangesAsync() > 0;
+            using var contexto = GetContext();
+            contexto.Tecnicos.Add(tecnico);
+            return await contexto.SaveChangesAsync() > 0;
         }
-
 
         private async Task<bool> Modificar(Tecnicos tecnico)
         {
-            Contexto.Tecnicos.Update(tecnico);
-            var modificado = await Contexto.SaveChangesAsync() > 0;
-            Contexto.Entry(tecnico).State = EntityState.Detached;
+            using var contexto = GetContext();
+            contexto.Tecnicos.Update(tecnico);
+            var modificado = await contexto.SaveChangesAsync() > 0;
+            contexto.Entry(tecnico).State = EntityState.Detached;
             return modificado;
         }
 
@@ -41,30 +46,28 @@ namespace RegistroTecnicos.Services
             if (!await Existe(tecnico.TecnicoId))
                 return await Insertar(tecnico);
             else
-            {
                 return await Modificar(tecnico);
-            }
         }
-
 
         public async Task<bool> Eliminar(int id)
         {
-            var Tecnicos = await Contexto.Tecnicos.Where(P => P.TecnicoId == id).ExecuteDeleteAsync();
+            using var contexto = GetContext();
+            var Tecnicos = await contexto.Tecnicos.Where(p => p.TecnicoId == id).ExecuteDeleteAsync();
             return Tecnicos > 0;
         }
 
-
         public async Task<Tecnicos?> Buscar(int id)
         {
-            return await Contexto.Tecnicos
+            using var contexto = GetContext();
+            return await contexto.Tecnicos
                 .AsNoTracking()
-                .FirstOrDefaultAsync(P => P.TecnicoId == id);
+                .FirstOrDefaultAsync(p => p.TecnicoId == id);
         }
-
 
         public async Task<List<Tecnicos>> Listar(Expression<Func<Tecnicos, bool>> criterio)
         {
-            return await Contexto.Tecnicos
+            using var contexto = GetContext();
+            return await contexto.Tecnicos
                 .Include(t => t.TipoTecnico)
                 .Where(criterio)
                 .ToListAsync();
