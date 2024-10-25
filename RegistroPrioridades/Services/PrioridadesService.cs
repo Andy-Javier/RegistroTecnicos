@@ -2,11 +2,11 @@
 using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
 
-public class PrioridadesServices
+public class PrioridadesService
 {
     private readonly ContextoFactory _contextoFactory;
 
-    public PrioridadesServices(ContextoFactory contextoFactory)
+    public PrioridadesService(ContextoFactory contextoFactory)
     {
         _contextoFactory = contextoFactory;
     }

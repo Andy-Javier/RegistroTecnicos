@@ -5,11 +5,11 @@ using RegistroTecnicos.Models;
 
 namespace RegistroTecnicos.Services
 {
-    public class TiposTecnicosServices
+    public class TiposTecnicosService
     {
         private readonly ContextoFactory _contextoFactory;
 
-        public TiposTecnicosServices(ContextoFactory contextoFactory)
+        public TiposTecnicosService(ContextoFactory contextoFactory)
         {
             _contextoFactory = contextoFactory;
         }
