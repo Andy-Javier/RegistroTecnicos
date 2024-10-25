@@ -25,12 +25,14 @@ namespace RegistroTecnicos
             builder.Services.AddSingleton<ContextoFactory>();
 
             // Inyectar los servicios existentes
-            builder.Services.AddScoped<TecnicosServices>();
-            builder.Services.AddScoped<TiposTecnicosServices>();
-            builder.Services.AddScoped<ClientesServices>();
-            builder.Services.AddScoped<TrabajosServices>();
-            builder.Services.AddScoped<PrioridadesServices>();
-            builder.Services.AddScoped<ArticuloServices>();
+            builder.Services.AddScoped<TecnicosService>();
+            builder.Services.AddScoped<TiposTecnicosService>();
+            builder.Services.AddScoped<ClientesService>();
+            builder.Services.AddScoped<TrabajosService>();
+            builder.Services.AddScoped<PrioridadesService>();
+            builder.Services.AddScoped<ArticuloService>();
+            builder.Services.AddScoped<CotizacionesService>();
+            builder.Services.AddScoped<CotizacionesDetalleService>();
 
             // Inyectar BlazorBootstrap
             builder.Services.AddBlazorBootstrap();
