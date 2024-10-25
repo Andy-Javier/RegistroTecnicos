@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.Models;
+using RegistroTecnicos.Services;
 
 namespace RegistroTecnicos.DAL
 {
@@ -16,6 +17,8 @@ namespace RegistroTecnicos.DAL
         public DbSet<TiposTecnicos> TiposTecnicos { get; set; }
         public DbSet<Articulos> Articulos { get; set; }
         public DbSet<TrabajosDetalle> TrabajosDetalle { get; set; }
+        public DbSet<Cotizaciones> Cotizaciones { get; set; }
+        public DbSet<CotizacionesDetalle> CotizacionesDetalle { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
