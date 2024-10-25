@@ -1,35 +1,43 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
+using System.Linq.Expressions;
 
 namespace RegistroTecnicos.Services
 {
     public class ClientesServices
     {
-        private readonly Contexto Contexto;
+        private readonly ContextoFactory _contextoFactory;
 
-        public ClientesServices(Contexto contexto)
+        public ClientesServices(ContextoFactory contextoFactory)
         {
-            Contexto = contexto;
+            _contextoFactory = contextoFactory;
+        }
+
+        private Contexto GetContext()
+        {
+            return _contextoFactory.CreateDbContext(new string[] { });
         }
 
         public async Task<bool> Existe(int clienteId)
         {
-            return await Contexto.Clientes.AnyAsync(c => c.ClienteId == clienteId);
+            using var contexto = GetContext();
+            return await contexto.Clientes.AnyAsync(c => c.ClienteId == clienteId);
         }
 
         private async Task<bool> Insertar(Clientes cliente)
         {
-            Contexto.Clientes.Add(cliente);
-            return await Contexto.SaveChangesAsync() > 0;
+            using var contexto = GetContext();
+            contexto.Clientes.Add(cliente);
+            return await contexto.SaveChangesAsync() > 0;
         }
 
         private async Task<bool> Modificar(Clientes cliente)
         {
-            Contexto.Clientes.Update(cliente); 
-            var modificado = await Contexto.SaveChangesAsync() > 0;
-            Contexto.Entry(cliente).State = EntityState.Detached;
+            using var contexto = GetContext();
+            contexto.Clientes.Update(cliente);
+            var modificado = await contexto.SaveChangesAsync() > 0;
+            contexto.Entry(cliente).State = EntityState.Detached;
             return modificado;
         }
 
@@ -43,25 +51,28 @@ namespace RegistroTecnicos.Services
 
         public async Task<bool> Eliminar(int id)
         {
-            var cliente = await Contexto.Clientes.FindAsync(id);
+            using var contexto = GetContext();
+            var cliente = await contexto.Clientes.FindAsync(id);
             if (cliente != null)
             {
-                Contexto.Clientes.Remove(cliente);
-                return await Contexto.SaveChangesAsync() > 0;
+                contexto.Clientes.Remove(cliente);
+                return await contexto.SaveChangesAsync() > 0;
             }
             return false;
         }
 
         public async Task<Clientes?> Buscar(int id)
         {
-            return await Contexto.Clientes
+            using var contexto = GetContext();
+            return await contexto.Clientes
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.ClienteId == id);
         }
 
         public async Task<List<Clientes>> Listar(Expression<Func<Clientes, bool>> criterio)
         {
-            return await Contexto.Clientes
+            using var contexto = GetContext();
+            return await contexto.Clientes
                 .Where(criterio)
                 .AsNoTracking()
                 .ToListAsync();
@@ -69,7 +80,8 @@ namespace RegistroTecnicos.Services
 
         public async Task<bool> ExisteCliente(int clienteId, string nombres)
         {
-            return await Contexto.Clientes
+            using var contexto = GetContext();
+            return await contexto.Clientes
                 .AnyAsync(c => c.ClienteId != clienteId && c.Nombres.ToLower() == nombres.ToLower());
         }
     }
