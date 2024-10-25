@@ -19,6 +19,6 @@ namespace RegistroTecnicos.Models
         [ForeignKey("TipoTecnico")]
         public int TipoTecnicoId { get; set; }
 
-        public TiposTecnicos TipoTecnico { get; set; } // Propiedad de navegación
+        public TiposTecnicos? TipoTecnico { get; set; } // Propiedad de navegación
     }
 }
