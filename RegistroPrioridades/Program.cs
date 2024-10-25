@@ -15,11 +15,14 @@ namespace RegistroTecnicos
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            //Obtenemos el ConStr para usarlo en el contexto
+            // Obtener la cadena de conexión
             var ConStr = builder.Configuration.GetConnectionString("ConStr");
 
-            // Agregamos el contexto al builder con el ConStr
+            // Agregar el contexto al builder con el ConStr
             builder.Services.AddDbContext<Contexto>(Options => Options.UseSqlite(ConStr));
+
+            // Registrar ContextoFactory
+            builder.Services.AddSingleton<ContextoFactory>();
 
             // Inyectar los servicios existentes
             builder.Services.AddScoped<TecnicosServices>();
@@ -27,7 +30,7 @@ namespace RegistroTecnicos
             builder.Services.AddScoped<ClientesServices>();
             builder.Services.AddScoped<TrabajosServices>();
             builder.Services.AddScoped<PrioridadesServices>();
-            builder.Services.AddScoped<ArticuloServices>();  
+            builder.Services.AddScoped<ArticuloServices>();
 
             // Inyectar BlazorBootstrap
             builder.Services.AddBlazorBootstrap();
@@ -43,7 +46,6 @@ namespace RegistroTecnicos
             }
 
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
             app.UseAntiforgery();
 
