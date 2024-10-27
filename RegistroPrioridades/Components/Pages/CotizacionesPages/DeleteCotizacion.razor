@@ -1,0 +1,132 @@
+﻿@page "/Cotizacion/Delete"
+@page "/Cotizacion/Delete/{CotizacionId:int}"
+@inject CotizacionesService cotizacionesService
+@inject ClientesService clientesService
+@inject ArticuloService articuloService
+@inject NavigationManager NavigationManager
+@inject ToastService toastService
+@rendermode InteractiveServer
+
+<div class="container">
+    <div class="card shadow-lg mt-3 ">
+        <div class="card-header ">
+            <h5>Eliminar Registro de Cotizaci&oacute;nes</h5>
+        </div>
+        <div class="card-body">
+            @*   CotizacionId *@
+            <div class="mb-3 row">
+                <label for=" CotizacionId" class="col-md-2 text-end col-form-label"><strong> Cotizaci&oacute;nId:</strong></label>
+                <div class="col-md-1">
+                    <p class="form-control-plaintext">@cotizacion?.CotizacionId</p>
+                </div>
+            </div>
+            @*   Fecha *@
+            <div class="mb-3 row">
+                <label for="Fecha" class="col-md-2 text-end col-form-label"><strong>Fecha:</strong></label>
+                <div class="col-md-3">
+                    <p class="form-control-plaintext">@cotizacion?.Fecha</p>
+                </div>
+            </div>
+            @*    ClienteId *@
+            <div class="mb-3 row">
+                <label for="ClienteId" class="col-md-2 text-end col-form-label"><strong>ClienteId:</strong></label>
+                <div class="col-md-4">
+                    <p class="form-control-plaintext">@cliente?.Nombres</p>
+                </div>
+            </div>
+            @*    Observacion *@
+            <div class="mb-3 row">
+                <label for="Observacion" class="col-md-2 text-end col-form-label"><strong>Observaci&oacute;n:</strong></label>
+                <div class="col-md-4">
+                    <p class="form-control-plaintext">@cotizacion?.Observacion</p>
+                </div>
+            </div>
+            @*  Monto *@
+            <div class="mb-3 row">
+                <label for="Monto" class="col-md-2 text-end col-form-label"><strong>Monto:</strong></label>
+                <div class="col-md-2">
+                    <p class="form-control-plaintext">@cotizacion?.Monto.ToString("C")</p>
+                </div>
+            </div>
+            <div class="border border-success mt-3">
+                <h5>Eliminar Cotizaci&oacute;nDetalle</h5>
+
+                <table class="table table-light table-bordered">
+                    <thead class="table table-striped text-center">
+                        <tr>
+                            <th>Artículo</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detalle in ListaCotizacionesDetalle)
+                        {
+                            var descripcionArticulo = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.Descripcion ?? "No encontrado";
+                            <tr>
+                                <td>@descripcionArticulo</td>
+                                <td>@detalle.Cantidad</td>
+                                <td>@detalle.Precio.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="card-footer text-center">
+                    <button type="button" class="btn btn-outline-danger" @onclick="EliminarCotizacion">
+                        <span class="bi bi-trash"></span> Eliminar
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" @onclick="Volver">
+                        <span class="bi bi-arrow-left"></span> Volver
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CotizacionId { get; set; }
+    public Cotizaciones? cotizacion { get; set; } = new Cotizaciones();
+    public CotizacionesDetalle? CotizacionesDetalle { get; set; } = new CotizacionesDetalle();
+    public List<Articulos> ListaArticulos { get; set; } = new();
+    public Articulos? articulos { get; set; } = new();
+    public List<CotizacionesDetalle> ListaCotizacionesDetalle { get; set; } = new();
+    public Clientes? cliente { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        cotizacion = await cotizacionesService.Buscar(CotizacionId);
+        if (cotizacion != null)
+        {
+            ListaCotizacionesDetalle = cotizacion.CotizacionesDetalle.ToList();
+            cliente = await clientesService.Buscar(cotizacion.ClienteId);
+            ListaArticulos = await articuloService.Listar();
+        }
+    }
+
+    private async Task EliminarCotizacion()
+    {
+        if (cotizacion == null || CotizacionId == 0)
+        {
+            return;
+        }
+
+        var detalles = ListaCotizacionesDetalle;
+
+        if (await cotizacionesService.Eliminar(CotizacionId))
+        {
+            foreach (var detalle in detalles)
+            {
+                await articuloService.AgregarCantidad(detalle.ArticuloId, detalle.Cantidad);
+            }
+
+            toastService.Notify(new(ToastType.Danger, "Advertencia", "Ya se elimino el detalle y registro."));
+        }
+    }
+
+    private void Volver()
+    {
+        NavigationManager.NavigateTo("/Cotizacion/Index");
+    }
+}
