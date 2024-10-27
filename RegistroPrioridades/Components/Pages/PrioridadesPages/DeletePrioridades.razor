@@ -53,8 +53,7 @@ else
     {
         if (prioridad != null)
         {
-            // Llamar al método Eliminar con el objeto 'prioridad'
-            bool eliminado = await prioridadesServices.Eliminar(prioridad);
+            bool eliminado = await prioridadesServices.Eliminar(prioridad.PrioridadId);
             if (eliminado)
             {
                 Volver();
