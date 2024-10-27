@@ -1,0 +1,186 @@
+﻿@page "/Cotizacion/Index"
+@inject CotizacionesService cotizacionesService
+@inject ClientesService ClientesService
+@inject NavigationManager NavigationManager
+@using System.Linq.Expressions
+@rendermode InteractiveServer
+
+<div class="container">
+    <div class="card shadow-lg mt-3">
+        <div class="card-header text-center">
+            <h5>Registro de Cotizaci&oacute;nes</h5>
+        </div>
+        <div class="card-body">
+            <div class="row md-3 align-content-center">
+                <div class="col-md-3">
+                    <label for="filtro" class="form-label"><strong>Filtrar Por:</strong></label>
+                    <select @bind="filtro" class="form-select">
+                        <option value="id">Cotizaci&oacute;nId</option>
+                        <option value="Observacion">Observaci&oacute;n</option>
+                        <option value="Monto">Monto</option>
+                        <option value="Cliente">Cliente</option>
+                        <option value="Fecha">Fecha</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="valorfiltro" class="form-label"><strong>Busqueda:</strong></label>
+                    <div class="input-group">
+                        <input @bind="valorfiltro" class="form-control" />
+                        <button type="button" @onclick="Buscar" class="btn btn-outline-primary">
+                            <span class="bi bi-search mt-3"></span>
+                            Buscar
+                        </button>
+                        <button type="button" @onclick="Restablecer" class="btn btn-outline-success">
+                            <span class="bi bi-arrow-clockwise mt-3"></span>
+                            Restablecer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="fechaInicial" class="form-label"><strong>Fecha Iniciar:</strong></label>
+                            <input type="date" @bind="Desde" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fechaFinal" class="form-label"><strong>Fecha Final:</strong></label>
+                            <input type="date" @bind="Hasta" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-15 text-end">
+                        <a type="button" href="/Cotizacion/Create" class="btn btn-outline-success">
+                            <span class="bi bi-pencil-square mt-3"></span>
+                            Crear
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-light table-bordered">
+                <thead class="table table-striped text-center">
+                    <tr>
+                        <th>Cotizaci&oacute;nId</th>
+                        <th>Fecha</th>
+                        <th>ClienteId</th>
+                        <th>Observaci&oacute;n</th>
+                        <th>Monto</th>
+                        <th>Ver</th>
+                        <th>Modificar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Listacotizacion)
+                    {
+                        <tr>
+                            <td>@c.CotizacionId</td>
+                            <td>@(c.Fecha.HasValue ? c.Fecha.Value.ToString("dd/MM/yyyy") : "No disponible")</td>
+                            <td>@c.ClienteId</td>
+                            <td>@c.Observacion</td>
+                            <td>@c.Monto.ToString("C")</td>
+                            <td class="text-center">
+                                <a href="/Cotizacion/Details/@c.CotizacionId" class="btn btn-outline-primary  bi bi-eye mt-3"></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Cotizacion/Edit/@c.CotizacionId" class="btn btn-outline-success  bi bi-pencil-square mt-3"></a>
+                            </td>
+                            <td class="text-center">
+                                <a href="/Cotizacion/Delete/@c.CotizacionId" class="btn btn-outline-danger  bi bi-trash mt-3"></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <p>Total: @Listacotizacion.Count</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    public Cotizaciones cotizacion { get; set; } = new Cotizaciones();
+    public List<Cotizaciones> Listacotizacion { get; set; } = new List<Cotizaciones>();
+    public string filtro = "id";
+    public string valorfiltro = "";
+    public DateTime? Desde { get; set; }
+    public DateTime? Hasta { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Listacotizacion = await cotizacionesService.Listar(c => true);
+    }
+
+    public async Task Buscar()
+    {
+        Expression<Func<Cotizaciones, bool>> predicate = c => true;
+
+        if (!string.IsNullOrWhiteSpace(valorfiltro))
+        {
+            if (filtro == "id" && int.TryParse(valorfiltro, out int CotizacionId))
+            {
+                predicate = c => c.CotizacionId == CotizacionId;
+            }
+            else if (filtro == "Observacion")
+            {
+                predicate = c => c.Observacion.Contains(valorfiltro);
+            }
+            else if (filtro == "Monto" && decimal.TryParse(valorfiltro, out decimal Monto))
+            {
+                predicate = c => c.Monto == Monto;
+            }
+            else if (filtro == "Cliente")
+            {
+                var cliente = await ClientesService.BuscarPorNombre(valorfiltro);
+                if (cliente != null)
+                {
+                    predicate = c => c.ClienteId == cliente.ClienteId;
+                }
+                else
+                {
+                    Listacotizacion = new List<Cotizaciones>(); 
+                    return;
+                }
+            }
+        }
+
+        if (Desde.HasValue || Hasta.HasValue)
+        {
+            var datePredicate = (Expression<Func<Cotizaciones, bool>>)(c =>
+                c.Fecha.HasValue &&
+                (!Desde.HasValue || c.Fecha.Value >= Desde) &&
+                (!Hasta.HasValue || c.Fecha.Value <= Hasta));
+
+            predicate = CombineExpressions(predicate, datePredicate);
+        }
+
+        Listacotizacion = await cotizacionesService.Listar(predicate);
+    }
+
+    public async Task Restablecer()
+    {
+        filtro = "id";
+        valorfiltro = "";
+        Desde = null;
+        Hasta = null;
+        Listacotizacion = await cotizacionesService.Listar(c => true);
+    }
+
+    private static Expression<Func<T, bool>> CombineExpressions<T>(
+        Expression<Func<T, bool>> expr1,
+        Expression<Func<T, bool>> expr2)
+    {
+        var parameter = Expression.Parameter(typeof(T));
+
+        var combinedBody = Expression.AndAlso(
+            Expression.Invoke(expr1, parameter),
+            Expression.Invoke(expr2, parameter));
+
+        return Expression.Lambda<Func<T, bool>>(combinedBody, parameter);
+    }
+}
