@@ -1,234 +1,279 @@
 ﻿@page "/Trabajos/Create"
-@inject TrabajosService trabajosServices
-@inject ClientesService clientesServices
-@inject TecnicosService tecnicosServices
-@inject PrioridadesService prioridadesServices
-@inject ArticuloService articulosServices
+@inject TrabajosService trabajosService
+@inject ClientesService clientesService
+@inject TecnicosService tecnicosService
+@inject PrioridadesService prioridadesService
+@inject ArticuloService articuloService
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
-<PageTitle>Crear Trabajo</PageTitle>
-
 <EditForm Model="trabajo" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-    <ValidationSummary />
 
-    <div class="card">
-        <div class="card-header bg-primary text-white text-center py-2 rounded">
-            <h3><i class="fas fa-tasks"></i> <strong>Registro de Trabajo</strong></h3>
-        </div>
-
-        <div class="card-body">
-            @* Fecha *@
-            <div class="mb-3">
-                <label for="Fecha" class="form-label">Fecha</label>
-                <InputDate @bind-Value="trabajo.Fecha" class="form-control" />
-                <ValidationMessage For="@(() => trabajo.Fecha)" />
-            </div>
-
-            @* Cliente *@
-            <div class="mb-3">
-                <label for="ClienteId" class="form-label">Cliente</label>
-                <InputSelect @bind-Value="trabajo.ClienteId" class="form-control">
-                    <option value="">Seleccione un cliente</option>
-                    @foreach (var cliente in listaClientes)
-                    {
-                        <option value="@cliente.ClienteId">@cliente.Nombres</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => trabajo.ClienteId)" />
-            </div>
-
-            @* Técnico *@
-            <div class="mb-3">
-                <label for="TecnicoId" class="form-label">T&eacute;cnico</label>
-                <InputSelect @bind-Value="trabajo.TecnicoId" class="form-control">
-                    <option value="">Seleccione un t&eacute;cnico</option>
-                    @foreach (var tecnico in listaTecnicos)
-                    {
-                        <option value="@tecnico.TecnicoId">@tecnico.Nombre</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => trabajo.TecnicoId)" />
-            </div>
-
-            @* Prioridad *@
-            <div class="mb-3">
-                <label for="PrioridadId" class="form-label">Prioridad</label>
-                <InputSelect @bind-Value="trabajo.PrioridadId" class="form-control">
-                    <option value="">Seleccione una prioridad</option>
-                    @foreach (var prioridad in listaPrioridades)
-                    {
-                        <option value="@prioridad.PrioridadId">@prioridad.Descripcion</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => trabajo.PrioridadId)" />
-            </div>
-
-            @* Descripción *@
-            <div class="mb-3">
-                <label for="Descripcion" class="form-label">Descripción</label>
-                <InputTextArea @bind-Value="trabajo.Descripcion" class="form-control" />
-                <ValidationMessage For="@(() => trabajo.Descripcion)" />
-            </div>
-
-            @* Monto *@
-            <div class="mb-3">
-                <label for="Monto" class="form-label">Monto</label>
-                <InputNumber @bind-Value="trabajo.Monto" class="form-control" />
-                <ValidationMessage For="@(() => trabajo.Monto)" />
-            </div>
-        </div>
-
-        @* Detalles del Trabajo *@
-        <div class="card shadow-lg mb-4">
-            <div class="card-header bg-light text-dark">
-                <h3>Detalles del Trabajo</h3>
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white text-center">
+                <h5><strong>Registro Trabajos</strong></h5>
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <button type="button" class="btn btn-outline-success" @onclick="Nuevo">
-                        <i class="bi bi-plus"></i> Nuevo
-                    </button>
+                    <label for="TrabajoId" class="form-label"><strong>TrabajoId:</strong></label>
+                    <InputNumber @bind-Value="trabajo.TrabajoId" class="form-control" />
                 </div>
 
-                <table class="table table-light table-bordered mt-3">
-                    <thead class="table table-striped text-center">
-                        <tr>
-                            <th>Art&iacute;culo</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                            <th>Costo</th>
-                            <th>Remover</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var detalle in listaTrabajosDetalle)
-                        {
-                            var descripcionArticulo = listaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.Descripcion ?? "No encontrado";
-                            <tr>
-                                <td>@descripcionArticulo</td>
-                                <td>@detalle.Cantidad</td>
-                                <td>@detalle.Precio</td>
-                                <td>@detalle.Costo</td>
-                                <td>
-                                    <button @onclick="() => EliminarDetalle(detalle)" class="btn btn-outline-dark">
-                                        <span class="bi bi-trash"></span> Remover
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <div class="mb-3">
+                    <label for="Fecha" class="form-label"><strong>Fecha:</strong></label>
+                    <InputDate @bind-Value="trabajo.Fecha" class="form-control" />
+                    <ValidationMessage For="@(() => trabajo.Fecha)" />
+                </div>
 
-                <div class="row align-items-end m-0">
-                    <div class="col-md-4 p-0">
-                        <InputSelect class="form-control" @bind-Value="selectedArticuloId" @onchange="OnArticuloChanged">
-                            <option value="0" disabled>Seleccionar un Artículo</option>
-                            @foreach (var articulo in listaArticulos)
-                            {
-                                <option value="@articulo.ArticuloId">@articulo.Descripcion - Precio: @articulo.Precio</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    <div class="col-md-3 p-0">
-                        <div class="input-group">
-                            <span class="input-group-text">Cantidad:</span>
-                            <InputNumber @bind-Value="cantidad" class="form-control" />
+                <div class="mb-3">
+                    <label for="ClienteId" class="form-label"><strong>ClienteId:</strong></label>
+                    <InputSelect @bind-Value="trabajo.ClienteId" class="form-control">
+                        <option value="0">Seleccionar un Cliente</option>
+                        @foreach (var cliente in clientes)
+                        {
+                            <option value="@cliente.ClienteId">@cliente.Nombres</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => trabajo.ClienteId)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="TecnicoId" class="form-label"><strong>TécnicoId:</strong></label>
+                    <InputSelect @bind-Value="trabajo.TecnicoId" class="form-control">
+                        <option value="0">Seleccionar un Técnico</option>
+                        @foreach (var tecnico in tecnicos)
+                        {
+                            <option value="@tecnico.TecnicoId">@tecnico.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => trabajo.TecnicoId)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="PrioridadId" class="form-label"><strong>PrioridadId:</strong></label>
+                    <InputSelect @bind-Value="trabajo.PrioridadId" class="form-control">
+                        <option value="0">Seleccionar una Prioridad</option>
+                        @foreach (var prioridad in prioridades)
+                        {
+                            <option value="@prioridad.PrioridadId">@prioridad.Descripcion</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => trabajo.PrioridadId)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="Descripcion" class="form-label"><strong>Descripción:</strong></label>
+                    <InputText @bind-Value="trabajo.Descripcion" class="form-control" />
+                    <ValidationMessage For="@(() => trabajo.Descripcion)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="Monto" class="form-label"><strong>Monto:</strong></label>
+                    <InputNumber @bind-Value="trabajo.Monto" class="form-control" Disabled />
+                    <ValidationMessage For="@(() => trabajo.Monto)" />
+                </div>
+
+                <div class="border border-success p-3 mt-3">
+                    <h5 class="card-header">Detalle de Trabajos</h5>
+                    <div class="card-body">
+                        <div class="row align-items-end m-0">
+                            <div class="col-md-4 p-0">
+                                <InputSelect class="form-control" @bind-Value="selectedArticuloId">
+                                    <option value="0" disabled>Seleccionar un Artículo</option>
+                                    @foreach (var articulo in ListaArticulos)
+                                    {
+                                        <option value="@articulo.ArticuloId">@articulo.Descripcion - Precio: @articulo.Precio</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="col-md-3 p-0">
+                                <div class="input-group">
+                                    <span class="input-group-text">Cantidad:</span>
+                                    <InputNumber @bind-Value="TrabajosDetalle.Cantidad" class="form-control" />
+                                </div>
+                                <ValidationMessage For="@(() => TrabajosDetalle.Cantidad)" />
+                            </div>
+
+                            <div class="col-md-3 p-0">
+                                <div class="input-group">
+                                    <span class="input-group-text">Precio:</span>
+                                    <InputNumber @bind-Value="TrabajosDetalle.Precio" class="form-control" Disabled />
+                                </div>
+                                <ValidationMessage For="@(() => TrabajosDetalle.Precio)" />
+                            </div>
+
+                            <div class="col-md-2 p-0">
+                                <button type="button" @onclick="AgregarDetalle" class="btn btn-outline-primary">
+                                    <span class="bi bi-plus mt-3"></span> Agregar
+                                </button>
+                            </div>
                         </div>
-                        <ValidationMessage For="@(() => cantidad)" />
-                    </div>
-                    <div class="col-md-2 p-0">
-                        <button type="button" @onclick="AgregarDetalle" class="btn btn-outline-primary">
-                            <span class="bi bi-plus mt-3"></span> Agregar
-                        </button>
+
+                        <table class="table table-light table-bordered mt-3">
+                            <thead class="table table-striped text-center">
+                                <tr>
+                                    <th>Art&iacute;culo</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio</th>
+                                    <th>Remover</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detalle in ListaTrabajosDetalle)
+                                {
+                                    var descripcionArticulo = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.Descripcion ?? "No encontrado";
+                                    <tr>
+                                        <td>@descripcionArticulo</td>
+                                        <td>@detalle.Cantidad</td>
+                                        <td>@detalle.Precio</td>
+                                        <td>
+                                            <button @onclick="() => EliminarDetalle(detalle)" class="btn btn-outline-dark">
+                                                <span class="bi bi-trash mt-3"></span> Remover
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        @if (guardar)
+                        {
+                            <div class="alert alert-success" role="alert">
+                                Se guardaron los detalles del trabajo.
+                            </div>
+                        }
+                        @if (agregar)
+                        {
+                            <div class="alert alert-info" role="alert">
+                                Se ha agregado el detalle del trabajo.
+                            </div>
+                        }
+                        @if (eliminado)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                El detalle ha sido eliminado.
+                            </div>
+                        }
+
+                        <div class="card-footer d-flex justify-content-center">
+                            <button type="button" @onclick="Nuevo" class="btn btn-outline-secondary">
+                                <span class="bi bi-plus mt-3"></span> Nuevo
+                            </button>
+
+                            <button type="submit" class="btn btn-outline-success">
+                                <span class="bi bi-floppy mt-3"></span> Guardar
+                            </button>
+                            <button type="button" @onclick="Volver" class="btn btn-outline-primary">
+                                <span class="bi bi-arrow-left mt-3"></span> Volver
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="card-footer bg-light d-flex justify-content-around mt-3">
-            <button type="submit" class="btn btn-success"><span class="bi bi-check-circle-fill"></span> Guardar</button>
-            <button type="button" class="btn btn-primary" @onclick="Volver"><span class="bi bi-arrow-left-square-fill"></span> Volver</button>
         </div>
     </div>
 </EditForm>
 
 @code {
-    public Trabajos trabajo { get; set; } = new Trabajos();
-    public List<Clientes> listaClientes { get; set; } = new List<Clientes>();
-    public List<Tecnicos> listaTecnicos { get; set; } = new List<Tecnicos>();
-    public List<Prioridades> listaPrioridades { get; set; } = new List<Prioridades>();
-    public List<Articulos> listaArticulos { get; set; } = new List<Articulos>();
-    public List<TrabajosDetalle> listaTrabajosDetalle { get; set; } = new List<TrabajosDetalle>();
-
-    public int selectedArticuloId { get; set; }
-    public int cantidad { get; set; }
+    [Parameter]
+    public int TrabajoId { get; set; }
+    public Trabajos trabajo { get; set; } = new();
+    public TrabajosDetalle TrabajosDetalle { get; set; } = new();
+    public List<Tecnicos> tecnicos { get; set; } = new();
+    public List<Clientes> clientes { get; set; } = new();
+    public List<Prioridades> prioridades { get; set; } = new();
+    public List<Articulos> ListaArticulos { get; set; } = new();
+    public List<TrabajosDetalle> ListaTrabajosDetalle { get; set; } = new();
+    private int selectedArticuloId;
+    private bool existe = false;
+    private bool eliminado = false;
+    private bool agregar = false;
+    private bool guardar = false;
 
     protected override async Task OnInitializedAsync()
     {
-        listaClientes = await clientesServices.Listar(c => c.ClienteId > 0);
-        listaTecnicos = await tecnicosServices.Listar(t => t.TecnicoId > 0);
-        listaPrioridades = await prioridadesServices.Listar(p => p.PrioridadId > 0);
-        listaArticulos = await articulosServices.ListaArticulos();
+        clientes = await clientesService.Listar(t => true);
+        tecnicos = await tecnicosService.Listar(t => true);
+        prioridades = await prioridadesService.Listar(t => true);
+        ListaArticulos = await articuloService.Listar();
     }
 
-    private async Task Guardar()
+    public async Task Nuevo()
     {
-        try
-        {
-            var guardo = await trabajosServices.Guardar(trabajo);
-            if (guardo)
-            {
-                navigationManager.NavigateTo("/Trabajos/Index");
-            }
-            else
-            {
-                Console.WriteLine($"Error al guardar");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error al guardar: {ex.Message}");
-        }
+        trabajo = new Trabajos();
+        TrabajosDetalle = new TrabajosDetalle();
+        existe = false;
+        ListaTrabajosDetalle.Clear(); 
     }
 
-    private void Volver()
+    public async Task EliminarDetalle(TrabajosDetalle detalle)
     {
-        navigationManager.NavigateTo("/Trabajos/Index");
+        ListaTrabajosDetalle.Remove(detalle);
+        eliminado = true;
+        await CalcularTotal(); 
     }
 
-    private void Nuevo()
+    private async Task CalcularTotal()
     {
-        // aqui irá la logica para cuando vaya a agregar un nuevo articulo
+        trabajo.Monto = ListaTrabajosDetalle.Sum(d => d.Cantidad * d.Precio);
     }
 
     private async Task AgregarDetalle()
-    {        
-        var articulo = listaArticulos.FirstOrDefault(a => a.ArticuloId == selectedArticuloId);
-        if (articulo != null)
+    {
+        if (selectedArticuloId != 0)
         {
-            listaTrabajosDetalle.Add(new TrabajosDetalle
+            var articulo = ListaArticulos.FirstOrDefault(a => a.ArticuloId == selectedArticuloId);
+            if (articulo != null && TrabajosDetalle.Cantidad > 0)
+            {
+               
+                if (!ListaTrabajosDetalle.Any(d => d.ArticuloId == selectedArticuloId))
                 {
-                    ArticuloId = articulo.ArticuloId,
-                    Cantidad = cantidad,
-                    Precio = articulo.Precio,
-                    Costo = articulo.Costo 
-                });
+                    TrabajosDetalle.ArticuloId = selectedArticuloId;
+                    trabajo.TrabajosDetalle = ListaTrabajosDetalle;
 
-           
-            selectedArticuloId = 0;
-            cantidad = 0;
+                    ListaTrabajosDetalle.Add(new TrabajosDetalle
+                        {
+                            ArticuloId = TrabajosDetalle.ArticuloId,
+                            Cantidad = TrabajosDetalle.Cantidad,
+                            Precio = TrabajosDetalle.Precio
+                        });
+
+                    agregar = true;
+                    await CalcularTotal(); 
+
+                    TrabajosDetalle = new TrabajosDetalle();
+                    selectedArticuloId = 0;
+                }
+                else
+                {
+                    existe = true;
+                }
+            }
         }
     }
 
-    private void EliminarDetalle(TrabajosDetalle detalle)
+    public async Task Guardar()
     {
-        listaTrabajosDetalle.Remove(detalle);
+        try
+        {
+            trabajo.TrabajosDetalle = ListaTrabajosDetalle; 
+            var response = await trabajosService.Guardar(trabajo);
+            guardar = true;
+            await Task.Delay(2000);
+            navigationManager.NavigateTo("/Trabajos");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
     }
 
-    private async Task OnArticuloChanged(ChangeEventArgs e)
+
+    public void Volver()
     {
-        selectedArticuloId = Convert.ToInt32(e.Value);
+        navigationManager.NavigateTo("/Trabajos");
     }
 }
