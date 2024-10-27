@@ -3,59 +3,93 @@ using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
 using System.Linq.Expressions;
 
-namespace RegistroTecnicos.Services
+namespace RegistroTecnicos.Services;
+
+public class ArticuloService
 {
-    public class ArticuloService
+    private readonly IDbContextFactory<Contexto> _dbFactory;
+
+    public ArticuloService(IDbContextFactory<Contexto> dbFactory)
     {
-        private readonly ContextoFactory _contextoFactory;
+        _dbFactory = dbFactory;
+    }
 
-        public ArticuloService(ContextoFactory contextoFactory)
+    public async Task<List<Articulos>> Listar(Expression<Func<Articulos, bool>> criterio = null)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        var query = contexto.Articulos.AsNoTracking();
+
+        if (criterio != null)
         {
-            _contextoFactory = contextoFactory;
+            query = query.Where(criterio);
         }
 
-        private Contexto GetContext()
-        {
-            return _contextoFactory.CreateDbContext(new string[] { });
-        }
+        return await query.ToListAsync();
+    }
 
-        public async Task<List<Articulos>> ListaArticulos()
-        {
-            using var _contexto = GetContext();
-            return await _contexto.Articulos
-                .AsNoTracking()
-                .ToListAsync();
-        }
+    public async Task<Articulos?> ObtenerArticuloPorId(int id)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.Articulos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.ArticuloId == id);
+    }
 
-        public async Task<Articulos?> ObtenerArticuloPorId(int id)
-        {
-            using var _contexto = GetContext();
-            return await _contexto.Articulos
-                .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.ArticuloId == id);
-        }
+    public async Task<bool> ActualizarExistencia(int articuloId, int cantidad)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        var articulo = await contexto.Articulos.FindAsync(articuloId);
 
-        public async Task ActualizarExistencia(int articuloId, decimal cantidad)
+        if (articulo != null)
         {
-            using var _contexto = GetContext();
-            var articulo = await _contexto.Articulos.FindAsync(articuloId);
-            if (articulo != null)
+            if (articulo.Existencia.HasValue)
             {
-                articulo.Existencia -= (int)cantidad;
-                _contexto.Articulos.Update(articulo);
-                await _contexto.SaveChangesAsync();
+                decimal nuevaExistencia = articulo.Existencia.Value - (decimal)cantidad; 
+                if (nuevaExistencia < 0)
+                {
+                    throw new InvalidOperationException("No hay suficiente existencia para reducir.");
+                }
+                articulo.Existencia = nuevaExistencia; 
             }
+            contexto.Articulos.Update(articulo);
+            await contexto.SaveChangesAsync();
+            return true;
+        }
+        return false;
+    }
+
+
+    public async Task<bool> AgregarCantidad(int articuloId, int cantidad)
+    {
+        if (cantidad <= 0)
+        {
+            throw new ArgumentException("La cantidad a agregar debe ser mayor que cero.");
         }
 
-        public async Task AgregarCantidad(int articuloId, int cantidad)
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        var articulo = await contexto.Articulos.FindAsync(articuloId);
+
+        if (articulo != null)
         {
-            using var _contexto = GetContext();
-            var articulo = await _contexto.Articulos.FindAsync(articuloId);
-            if (articulo != null)
+            if (articulo.Existencia.HasValue)
             {
                 articulo.Existencia += cantidad;
-                await _contexto.SaveChangesAsync();
             }
+            else
+            {
+                articulo.Existencia = cantidad; 
+            }
+            contexto.Articulos.Update(articulo);
+            await contexto.SaveChangesAsync();
+            return true;
         }
+        return false;
+    }
+
+    public async Task<Articulos?> Buscar(int articuloId)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.Articulos.AsNoTracking()
+            .FirstOrDefaultAsync(a => a.ArticuloId == articuloId);
     }
 }

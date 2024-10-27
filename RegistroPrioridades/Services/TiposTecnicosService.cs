@@ -7,43 +7,37 @@ namespace RegistroTecnicos.Services
 {
     public class TiposTecnicosService
     {
-        private readonly ContextoFactory _contextoFactory;
+        private readonly IDbContextFactory<Contexto> _dbFactory;
 
-        public TiposTecnicosService(ContextoFactory contextoFactory)
+        public TiposTecnicosService(IDbContextFactory<Contexto> dbFactory)
         {
-            _contextoFactory = contextoFactory;
-        }
-
-        private Contexto GetContext()
-        {
-            return _contextoFactory.CreateDbContext(new string[] { });
+            _dbFactory = dbFactory;
         }
 
         public async Task<bool> ExisteTipoId(int tiposTecnicosId)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.TiposTecnicos.AnyAsync(t => t.TipoTecnicoId == tiposTecnicosId);
         }
 
         public async Task<bool> ExisteTipoDescripcion(string? descripcion)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.TiposTecnicos.AnyAsync(t => t.Descripcion == descripcion);
         }
 
         private async Task<bool> Insertar(TiposTecnicos tiposTecnicos)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             await contexto.TiposTecnicos.AddAsync(tiposTecnicos);
             return await contexto.SaveChangesAsync() > 0;
         }
 
         private async Task<bool> Modificar(TiposTecnicos tiposTecnicos)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             contexto.TiposTecnicos.Update(tiposTecnicos);
-            var modificado = await contexto.SaveChangesAsync() > 0;
-            return modificado;
+            return await contexto.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> Guardar(TiposTecnicos tiposTecnicos)
@@ -56,7 +50,7 @@ namespace RegistroTecnicos.Services
 
         public async Task<bool> Eliminar(int id)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.TiposTecnicos
                 .Where(tipos => tipos.TipoTecnicoId == id)
                 .ExecuteDeleteAsync() > 0;
@@ -64,7 +58,7 @@ namespace RegistroTecnicos.Services
 
         public async Task<TiposTecnicos?> Buscar(int id)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.TiposTecnicos
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.TipoTecnicoId == id);
@@ -72,7 +66,7 @@ namespace RegistroTecnicos.Services
 
         public async Task<List<TiposTecnicos>> Listar(Expression<Func<TiposTecnicos, bool>> criterio)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.TiposTecnicos
                 .AsNoTracking()
                 .Where(criterio)
@@ -81,7 +75,7 @@ namespace RegistroTecnicos.Services
 
         public async Task<bool> ExisteTipoTecnico(int id, string? descripcion)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.TiposTecnicos.AnyAsync(e => e.TipoTecnicoId != id && e.Descripcion.ToLower().Equals(descripcion.ToLower()));
         }
     }

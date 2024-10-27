@@ -3,86 +3,89 @@ using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
 using System.Linq.Expressions;
 
-namespace RegistroTecnicos.Services
+namespace RegistroTecnicos.Services;
+
+public class ClientesService
 {
-    public class ClientesService
+    private readonly IDbContextFactory<Contexto> _dbFactory;
+
+    public ClientesService(IDbContextFactory<Contexto> dbFactory)
     {
-        private readonly ContextoFactory _contextoFactory;
+        _dbFactory = dbFactory;
+    }
 
-        public ClientesService(ContextoFactory contextoFactory)
-        {
-            _contextoFactory = contextoFactory;
-        }
+    public async Task<bool> Existe(int clienteId)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.Clientes.AnyAsync(c => c.ClienteId == clienteId);
+    }
 
-        private Contexto GetContext()
-        {
-            return _contextoFactory.CreateDbContext(new string[] { });
-        }
+    private async Task<bool> Insertar(Clientes cliente)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        contexto.Clientes.Add(cliente);
+        return await contexto.SaveChangesAsync() > 0;
+    }
 
-        public async Task<bool> Existe(int clienteId)
-        {
-            using var contexto = GetContext();
-            return await contexto.Clientes.AnyAsync(c => c.ClienteId == clienteId);
-        }
+    private async Task<bool> Modificar(Clientes cliente)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        contexto.Clientes.Update(cliente);
+        var modificado = await contexto.SaveChangesAsync() > 0;
+        contexto.Entry(cliente).State = EntityState.Detached;
+        return modificado;
+    }
 
-        private async Task<bool> Insertar(Clientes cliente)
+    public async Task<bool> Guardar(Clientes cliente)
+    {
+        if (!await Existe(cliente.ClienteId))
+            return await Insertar(cliente);
+        else
+            return await Modificar(cliente);
+    }
+
+    public async Task<bool> Eliminar(int id)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        var cliente = await contexto.Clientes.FindAsync(id);
+        if (cliente != null)
         {
-            using var contexto = GetContext();
-            contexto.Clientes.Add(cliente);
+            contexto.Clientes.Remove(cliente);
             return await contexto.SaveChangesAsync() > 0;
         }
+        return false;
+    }
 
-        private async Task<bool> Modificar(Clientes cliente)
-        {
-            using var contexto = GetContext();
-            contexto.Clientes.Update(cliente);
-            var modificado = await contexto.SaveChangesAsync() > 0;
-            contexto.Entry(cliente).State = EntityState.Detached;
-            return modificado;
-        }
+    public async Task<Clientes?> Buscar(int id)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.Clientes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.ClienteId == id);
+    }
 
-        public async Task<bool> Guardar(Clientes cliente)
-        {
-            if (!await Existe(cliente.ClienteId))
-                return await Insertar(cliente);
-            else
-                return await Modificar(cliente);
-        }
+    public async Task<List<Clientes>> Listar(Expression<Func<Clientes, bool>> criterio)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.Clientes
+            .Where(criterio)
+            .AsNoTracking()
+            .ToListAsync();
+    }
 
-        public async Task<bool> Eliminar(int id)
-        {
-            using var contexto = GetContext();
-            var cliente = await contexto.Clientes.FindAsync(id);
-            if (cliente != null)
-            {
-                contexto.Clientes.Remove(cliente);
-                return await contexto.SaveChangesAsync() > 0;
-            }
-            return false;
-        }
+    public async Task<bool> ExisteCliente(int clienteId, string nombres)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.Clientes
+            .AnyAsync(c => c.ClienteId != clienteId && c.Nombres.ToLower() == nombres.ToLower());
+    }
 
-        public async Task<Clientes?> Buscar(int id)
-        {
-            using var contexto = GetContext();
-            return await contexto.Clientes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.ClienteId == id);
-        }
-
-        public async Task<List<Clientes>> Listar(Expression<Func<Clientes, bool>> criterio)
-        {
-            using var contexto = GetContext();
-            return await contexto.Clientes
-                .Where(criterio)
-                .AsNoTracking()
-                .ToListAsync();
-        }
-
-        public async Task<bool> ExisteCliente(int clienteId, string nombres)
-        {
-            using var contexto = GetContext();
-            return await contexto.Clientes
-                .AnyAsync(c => c.ClienteId != clienteId && c.Nombres.ToLower() == nombres.ToLower());
-        }
+    // Método nuevo para buscar por nombre
+    public async Task<Clientes?> BuscarPorNombre(string nombres)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.Clientes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Nombres.ToLower().Contains(nombres.ToLower()));
     }
 }

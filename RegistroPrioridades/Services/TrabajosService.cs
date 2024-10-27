@@ -7,34 +7,29 @@ namespace RegistroTecnicos.Services
 {
     public class TrabajosService
     {
-        private readonly ContextoFactory _contextoFactory;
+        private readonly IDbContextFactory<Contexto> _dbFactory;
 
-        public TrabajosService(ContextoFactory contextoFactory)
+        public TrabajosService(IDbContextFactory<Contexto> dbFactory)
         {
-            _contextoFactory = contextoFactory;
-        }
-
-        private Contexto GetContext()
-        {
-            return _contextoFactory.CreateDbContext(new string[] { });
+            _dbFactory = dbFactory;
         }
 
         public async Task<bool> Insertar(Trabajos trabajos)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             contexto.Trabajos.Add(trabajos);
             return await contexto.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> Existe(int trabajosId)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.Trabajos.AnyAsync(t => t.TrabajoId == trabajosId);
         }
 
         public async Task<bool> Modificar(Trabajos trabajos)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             contexto.Update(trabajos);
             return await contexto.SaveChangesAsync() > 0;
         }
@@ -49,7 +44,7 @@ namespace RegistroTecnicos.Services
 
         public async Task<bool> Eliminar(int id)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             var trabajos = await contexto.Trabajos
                 .Where(t => t.TrabajoId == id)
                 .ExecuteDeleteAsync();
@@ -58,7 +53,7 @@ namespace RegistroTecnicos.Services
 
         public async Task<List<Trabajos>> Listar(Expression<Func<Trabajos, bool>> criterio)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.Trabajos
                 .AsNoTracking()
                 .Include(t => t.Cliente)
@@ -71,7 +66,7 @@ namespace RegistroTecnicos.Services
 
         public async Task<Trabajos?> Buscar(int id)
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.Trabajos
                 .AsNoTracking()
                 .Include(t => t.Cliente)
@@ -80,33 +75,54 @@ namespace RegistroTecnicos.Services
                 .FirstOrDefaultAsync(t => t.TrabajoId == id);
         }
 
+        public async Task<Trabajos?> GetById(int id)
+        {
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
+            return await contexto.Trabajos
+                .AsNoTracking()
+                .Include(t => t.Cliente)
+                .Include(t => t.Tecnico)
+                .Include(t => t.Prioridades)
+                .FirstOrDefaultAsync(t => t.TrabajoId == id);
+        }
+
+        public async Task<List<TrabajosDetalle>> ListarDetalles(int trabajosId)
+        {
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
+            return await contexto.TrabajosDetalle
+                .AsNoTracking()
+                .Where(td => td.TrabajosId == trabajosId)
+                .ToListAsync();
+        }
+
+
         public async Task<List<Clientes>> ObtenerClientes()
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.Clientes.ToListAsync();
         }
 
         public async Task<List<Tecnicos>> ObtenerTecnicos()
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.Tecnicos.ToListAsync();
         }
 
         public async Task<List<Prioridades>> ObtenerPrioridades()
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.Prioridades.ToListAsync();
         }
 
         public async Task<List<TrabajosDetalle>> ObtenerDetalle()
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.TrabajosDetalle.ToListAsync();
         }
 
         public async Task<List<Articulos>> ObtenerArticulos()
         {
-            using var contexto = GetContext();
+            await using var contexto = await _dbFactory.CreateDbContextAsync();
             return await contexto.Articulos.ToListAsync();
         }
     }

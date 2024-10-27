@@ -3,74 +3,68 @@ using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
 using System.Linq.Expressions;
 
-namespace RegistroTecnicos.Services
+namespace RegistroTecnicos.Services;
+
+public class CotizacionesDetalleService
 {
-    public class CotizacionesDetalleService
+    private readonly IDbContextFactory<Contexto> _dbFactory;
+
+    public CotizacionesDetalleService(IDbContextFactory<Contexto> dbFactory)
     {
-        private readonly ContextoFactory _contextoFactory;
+        _dbFactory = dbFactory;
+    }
 
-        public CotizacionesDetalleService(ContextoFactory contextoFactory)
-        {
-            _contextoFactory = contextoFactory;
-        }
+    public async Task<bool> Insertar(CotizacionesDetalle detalle)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        contexto.CotizacionesDetalle.Add(detalle);
+        return await contexto.SaveChangesAsync() > 0;
+    }
 
-        private Contexto GetContext()
-        {
-            return _contextoFactory.CreateDbContext(new string[] { });
-        }
+    public async Task<bool> Existe(int detalleId)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.CotizacionesDetalle.AnyAsync(d => d.DetalleId == detalleId);
+    }
 
-        public async Task<bool> Insertar(CotizacionesDetalle detalle)
-        {
-            using var contexto = GetContext();
-            contexto.CotizacionesDetalle.Add(detalle);
-            return await contexto.SaveChangesAsync() > 0;
-        }
+    public async Task<bool> Modificar(CotizacionesDetalle detalle)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        contexto.Update(detalle);
+        return await contexto.SaveChangesAsync() > 0;
+    }
 
-        public async Task<bool> Existe(int detalleId)
-        {
-            using var contexto = GetContext();
-            return await contexto.CotizacionesDetalle.AnyAsync(d => d.DetalleId == detalleId);
-        }
+    public async Task<bool> Guardar(CotizacionesDetalle detalle)
+    {
+        if (!await Existe(detalle.DetalleId))
+            return await Insertar(detalle);
+        else
+            return await Modificar(detalle);
+    }
 
-        public async Task<bool> Modificar(CotizacionesDetalle detalle)
-        {
-            using var contexto = GetContext();
-            contexto.Update(detalle);
-            return await contexto.SaveChangesAsync() > 0;
-        }
+    public async Task<bool> Eliminar(int id)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        var detallesEliminados = await contexto.CotizacionesDetalle
+            .Where(d => d.DetalleId == id)
+            .ExecuteDeleteAsync();
+        return detallesEliminados > 0;
+    }
 
-        public async Task<bool> Guardar(CotizacionesDetalle detalle)
-        {
-            if (!await Existe(detalle.DetalleId))
-                return await Insertar(detalle);
-            else
-                return await Modificar(detalle);
-        }
+    public async Task<CotizacionesDetalle?> Buscar(int id)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.CotizacionesDetalle
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.DetalleId == id);
+    }
 
-        public async Task<bool> Eliminar(int id)
-        {
-            using var contexto = GetContext();
-            var detalle = await contexto.CotizacionesDetalle
-                .Where(d => d.DetalleId == id)
-                .ExecuteDeleteAsync();
-            return detalle > 0;
-        }
-
-        public async Task<CotizacionesDetalle?> Buscar(int id)
-        {
-            using var contexto = GetContext();
-            return await contexto.CotizacionesDetalle
-                .AsNoTracking()
-                .FirstOrDefaultAsync(d => d.DetalleId == id);
-        }
-
-        public async Task<List<CotizacionesDetalle>> Listar(Expression<Func<CotizacionesDetalle, bool>> criterio)
-        {
-            using var contexto = GetContext();
-            return await contexto.CotizacionesDetalle
-                .AsNoTracking()
-                .Where(criterio)
-                .ToListAsync();
-        }
+    public async Task<List<CotizacionesDetalle>> Listar(Expression<Func<CotizacionesDetalle, bool>> criterio)
+    {
+        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        return await contexto.CotizacionesDetalle
+            .AsNoTracking()
+            .Where(criterio)
+            .ToListAsync();
     }
 }

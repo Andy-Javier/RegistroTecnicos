@@ -1,66 +1,69 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
+using System.Linq.Expressions;
 
-public class PrioridadesService
+namespace RegistroTecnicos.Services;
+public class PrioridadesService(IDbContextFactory<Contexto> DbFactory)
 {
-    private readonly ContextoFactory _contextoFactory;
 
-    public PrioridadesService(ContextoFactory contextoFactory)
+    //Metodo del existe
+    public async Task<bool> Existe(int prioridadId)
     {
-        _contextoFactory = contextoFactory;
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        return await contexto.Prioridades.AnyAsync(p => p.PrioridadId == prioridadId);
+    }
+    // Método del Insertar
+    private async Task<bool> Insertar(Prioridades prioridades)
+    {
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        contexto.Prioridades.Add(prioridades);
+        return await contexto.SaveChangesAsync() > 0;
     }
 
-    private Contexto GetContext()
+    // Método del Modificar
+    public async Task<bool> Modificar(Prioridades prioridad) // Cambiado a public
     {
-        return _contextoFactory.CreateDbContext(new string[] { });
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        contexto.Prioridades.Update(prioridad);
+        return await contexto.SaveChangesAsync() > 0;
     }
-
-    public async Task<List<Prioridades>> Listar(Func<Prioridades, bool> criterio)
-    {
-        using var contexto = GetContext();
-        return await Task.FromResult(contexto.Prioridades.Where(criterio).ToList());
-    }
-
-    public async Task<Prioridades?> Buscar(int PrioridadId)
-    {
-        using var contexto = GetContext();
-        return await contexto.Prioridades.FindAsync(PrioridadId);
-    }
-
+    //Metodo el Guardar
     public async Task<bool> Guardar(Prioridades prioridad)
     {
-        using var contexto = GetContext();
-        if (await contexto.Prioridades.AnyAsync(p => p.PrioridadId == prioridad.PrioridadId))
-            contexto.Prioridades.Update(prioridad);
+        if (!await Existe(prioridad.PrioridadId))
+        {
+            return await Insertar(prioridad);
+        }
         else
-            await contexto.Prioridades.AddAsync(prioridad);
-
-        return await contexto.SaveChangesAsync() > 0;
+        {
+            return await Modificar(prioridad);
+        }
     }
-
-    public async Task<bool> Eliminar(Prioridades prioridad)
+    //Metodo Eliminar
+    public async Task<bool> Eliminar(int id)
     {
-        using var contexto = GetContext();
-        contexto.Prioridades.Remove(prioridad);
-        return await contexto.SaveChangesAsync() > 0;
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        var eliminado = await contexto.Prioridades
+            .Where(p => p.PrioridadId == id)
+            .ExecuteDeleteAsync();
+        return eliminado > 0;
     }
-
-    public async Task<bool> Modificar(Prioridades prioridad)
+    //Metodo del Buscar
+    public async Task<Prioridades?> Buscar(int id)
     {
-        using var contexto = GetContext();
-        var existente = await contexto.Prioridades.FindAsync(prioridad.PrioridadId);
-        if (existente == null)
-            return false;
-        existente.Descripcion = prioridad.Descripcion;
-        existente.Tiempo = prioridad.Tiempo;
-        contexto.Prioridades.Update(existente);
-        return await contexto.SaveChangesAsync() > 0;
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        return await contexto.Prioridades
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.PrioridadId == id);
     }
-
-    public async Task<List<Prioridades>> GetPrioridades()
+    //Metodo del listar
+    public async Task<List<Prioridades>> Listar(Expression<Func<Prioridades, bool>> Criterio)
     {
-        using var contexto = GetContext();
-        return await contexto.Prioridades.ToListAsync();
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        return await contexto.Prioridades
+            .AsNoTracking()
+            .Where(Criterio)
+            .ToListAsync();
     }
 }
