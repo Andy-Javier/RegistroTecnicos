@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using RegistroTecnicos.Components;
 using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
@@ -18,8 +19,7 @@ namespace RegistroTecnicos
 
             // Obtener la cadena de conexión
             var SqlConStr = builder.Configuration.GetConnectionString("SqlConStr");
-            builder.Services.AddDbContext<Contexto>(options =>
-                options.UseSqlServer(SqlConStr));
+            builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(SqlConStr));
 
             // Inyectar los servicios existentes
             builder.Services.AddScoped<TecnicosService>();
