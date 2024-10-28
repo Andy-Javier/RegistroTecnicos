@@ -1,24 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RegistroTecnicos.Models
+namespace RegistroTecnicos.Models;
+
+public class Tecnicos
 {
-    public class Tecnicos
-    {
-        [Key]
-        public int TecnicoId { get; set; }
+    [Key]
+    public int TecnicoId { get; set; }
+    [Required(ErrorMessage = "Llenar este campo por favor.")]
+    public string? Nombres { get; set; }
+    [Required(ErrorMessage = "Llenar este campo por favor.")]
+    public decimal? Sueldohora { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string Nombre { get; set; } = string.Empty;
+    [ForeignKey("TiposTecnicos")]
+    public int TipoTecnicoId { get; set; }
+    public TiposTecnicos? TiposTecnicosId { get; set; }
+    public Trabajos? Trabajos { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal SueldoHora { get; set; }
-
-        [ForeignKey("TipoTecnico")]
-        public int TipoTecnicoId { get; set; }
-
-        public TiposTecnicos? TipoTecnico { get; set; } 
-    }
 }

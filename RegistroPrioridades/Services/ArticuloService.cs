@@ -1,95 +1,81 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RegistroTecnicos.DAL;
+﻿using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
-using System.Linq.Expressions;
-
+using Microsoft.EntityFrameworkCore;
 namespace RegistroTecnicos.Services;
 
-public class ArticuloService
+public class ArticuloService(IDbContextFactory<Contexto> DbFactory)
 {
-    private readonly IDbContextFactory<Contexto> _dbFactory;
-
-    public ArticuloService(IDbContextFactory<Contexto> dbFactory)
+    public async Task<List<Articulos>> ListarArticulos()
     {
-        _dbFactory = dbFactory;
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        return await contexto.Articulos
+            .AsNoTracking()
+            .ToListAsync();
     }
 
-    public async Task<List<Articulos>> Listar(Expression<Func<Articulos, bool>> criterio = null)
-    {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
-        var query = contexto.Articulos.AsNoTracking();
-
-        if (criterio != null)
-        {
-            query = query.Where(criterio);
-        }
-
-        return await query.ToListAsync();
-    }
-
+    // Método para obtener un artículo por su ID
     public async Task<Articulos?> ObtenerArticuloPorId(int id)
     {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        await using var contexto = await DbFactory.CreateDbContextAsync();
         return await contexto.Articulos
             .AsNoTracking()
             .FirstOrDefaultAsync(a => a.ArticuloId == id);
     }
 
-    public async Task<bool> ActualizarExistencia(int articuloId, int cantidad)
+    // Método para actualizar la existencia de un artículo
+    public async Task<bool> ActualizarExistencia(int articuloId, double cantidad)
     {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        await using var contexto = await DbFactory.CreateDbContextAsync();
         var articulo = await contexto.Articulos.FindAsync(articuloId);
 
         if (articulo != null)
         {
-            if (articulo.Existencia.HasValue)
+            // Convertir 'Existencia' y 'cantidad' a 'decimal' para la comparación
+            if ((decimal)articulo.Existencia >= (decimal)cantidad)
             {
-                decimal nuevaExistencia = articulo.Existencia.Value - (decimal)cantidad; 
-                if (nuevaExistencia < 0)
-                {
-                    throw new InvalidOperationException("No hay suficiente existencia para reducir.");
-                }
-                articulo.Existencia = nuevaExistencia; 
+                articulo.Existencia = (double)((decimal)articulo.Existencia - (decimal)cantidad); // Reducir la existencia
+                contexto.Articulos.Update(articulo);
+                await contexto.SaveChangesAsync();
+                return true; // Indica que la operación fue exitosa
             }
-            contexto.Articulos.Update(articulo);
-            await contexto.SaveChangesAsync();
-            return true;
+            else
+            {
+                throw new InvalidOperationException("No hay suficiente existencia para reducir.");
+            }
         }
-        return false;
+        return false; // Indica que el artículo no fue encontrado
     }
 
 
     public async Task<bool> AgregarCantidad(int articuloId, int cantidad)
     {
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        // Validar que la cantidad sea positiva
         if (cantidad <= 0)
         {
             throw new ArgumentException("La cantidad a agregar debe ser mayor que cero.");
         }
 
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
+        // Buscar el artículo por ID
         var articulo = await contexto.Articulos.FindAsync(articuloId);
 
         if (articulo != null)
         {
-            if (articulo.Existencia.HasValue)
-            {
-                articulo.Existencia += cantidad;
-            }
-            else
-            {
-                articulo.Existencia = cantidad; 
-            }
+            // Aumentar la cantidad del artículo
+            articulo.Existencia += cantidad;
+
+            // Guardar los cambios en la base de datos
             contexto.Articulos.Update(articulo);
             await contexto.SaveChangesAsync();
-            return true;
+            return true; // Indica que la operación fue exitosa
         }
-        return false;
+        return false; // Indica que el artículo no fue encontrado
     }
 
-    public async Task<Articulos?> Buscar(int articuloId)
+    public async Task<Articulos> Buscar(int articuloId)
     {
-        await using var contexto = await _dbFactory.CreateDbContextAsync();
-        return await contexto.Articulos.AsNoTracking()
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        return await contexto.Articulos
             .FirstOrDefaultAsync(a => a.ArticuloId == articuloId);
     }
 }

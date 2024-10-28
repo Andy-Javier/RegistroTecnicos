@@ -1,84 +1,71 @@
-﻿@page "/Cotizacion/Details"
-@page "/Cotizacion/Details/{CotizacionId:int}"
+﻿@page "/Cotizacion/Details/{CotizacionId:int}"
 @inject CotizacionesService cotizacionesService
 @inject ClientesService clientesService
-@inject ArticuloService articulosService
-@inject NavigationManager NavigationManager
+@inject ArticuloService articuloService
+@inject NavigationManager navigationManager
 @rendermode InteractiveServer
+
+<PageTitle>Detalles de Cotizaci&oacute;n</PageTitle>
 
 @if (cotizacion != null)
 {
     <div class="container">
-        <div class="card shadow-lg mt-3">
-            <div class="card-header">
-                <h5>Detalles de la Cotizaci&oacute;n</h5>
+        <div class="card shadow-header">
+            <div class="card-header text-center">
+                <h5 style="font-weight:" class="font-weight-bold">Detalles de la Cotizaci&oacute;n</h5>
             </div>
-            <div class="card-body">
-                @*   CotizacionId *@
-                <div class="mb-3 row">
-                    <label for="CotizacionId" class="col-md-2 text-end col-form-label"><strong>Cotizaci&oacute;nId:</strong></label>
-                    <div class="col-md-1">
-                        <p class="form-control-plaintext">@cotizacion.CotizacionId</p>
-                    </div>
-                </div>
-                @*  Fecha  *@
-                <div class="mb-3 row">
-                    <label for="Fecha" class="col-md-2 text-end col-form-label"><strong>Fecha:</strong></label>
-                    <div class="col-md-3">
-                        <p class="form-control-plaintext">@(cotizacion.Fecha.HasValue ? cotizacion.Fecha.Value.ToShortDateString() : "No disponible")</p>
-                    </div>
-                </div>
-                @*  ClienteId  *@
-                <div class="mb-3 row">
-                    <label for="ClienteId" class="col-md-2 text-end col-form-label"><strong>ClienteId:</strong></label>
-                    <div class="col-md-4">
-                        <p class="form-control-plaintext">@cliente?.Nombres</p>
-                    </div>
-                </div>
-                @* Observacion  *@
-                <div class="mb-3 row">
-                    <label for="Observacion" class="col-md-2 text-end col-form-label"><strong>Observaci&oacute;n:</strong></label>
-                    <div class="col-md-4">
-                        <p class="form-control-plaintext">@cotizacion.Observacion</p>
-                    </div>
-                </div>
-                @*  Monto  *@
-                <div class="mb-3 row">
-                    <label for="Monto" class="col-md-2 text-end col-form-label"><strong>Monto:</strong></label>
-                    <div class="col-md-2">
-                        <p class="form-control-plaintext">@cotizacion.Monto.ToString("C")</p>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><strong>Cotizaci&oacute;nId:</strong> @cotizacion.CotizacionId</li>
+                                <li><strong>Fecha:</strong> @(cotizacion.Fecha.HasValue ? cotizacion.Fecha.Value.ToShortDateString() : "No disponible")</li>
+                                <li><strong>Cliente:</strong> @(clientes.FirstOrDefault(c => c.ClienteId == cotizacion.ClienteId)?.Nombres ?? "No disponible")</li>
+                                <li><strong>Observaci&oacute;n:</strong> @cotizacion.Observacion</li>
+                                <li><strong>Monto Total:</strong> @cotizacion.Monto.ToString("C")</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
-                <div class="border border-success mt-3">
-                    <h5>Detalle Cotizaci&oacute;nDetalle</h5>
-                    <table class="table table-light table-bordered">
-                        <thead class="table table-striped text-center">
-                            <tr>
-                                <th>Artículo</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var detalle in ListaCotizacionesDetalle)
-                            {
-                                var descripcionArticulo = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.Descripcion ?? "No encontrado";
-                                <tr>
-                                    <td>@descripcionArticulo</td>
-                                    <td>@detalle.Cantidad</td>
-                                    <td>@detalle.Precio.ToString("C")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <div class="border border-success p-2 mt-2">
+                    <div class="card-header text-center">
+                        <h5 class="font-weight-bold">Detalles de Cotización</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (listacotizaciondetalle != null && listacotizaciondetalle.Any())
+                        {
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered text-center">
+                                    <thead class="bg-primary text-white">
+                                        <tr>
+                                            <th>Artículo</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var detalle in listacotizaciondetalle)
+                                        {
+                                            var articulo = listaarticulo.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId);
+                                            <tr>
+                                                <td>@(articulo?.Descripcion ?? "Artículo no encontrado")</td>
+                                                <td>@detalle.Cantidad</td>
+                                                <td>@detalle.Precio.ToString("C")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
                 </div>
 
-                @*  Botón Volver *@
                 <div class="card-footer text-center">
-                    <button type="button" class="btn btn-outline-primary" @onclick="Volver">
-                        <span class="bi bi-arrow-left"></span> Volver
-                    </button>
+                    <a href="/Cotizacion/Index" class="btn btn-outline-primary mx-2">
+                        <span class="bi bi-box-arrow-left"></span> Retroceder
+                    </a>
                 </div>
             </div>
         </div>
@@ -88,24 +75,20 @@
 @code {
     [Parameter]
     public int CotizacionId { get; set; }
-    public Cotizaciones? cotizacion { get; set; }
-    public List<CotizacionesDetalle> ListaCotizacionesDetalle { get; set; } = new();
-    public List<Articulos> ListaArticulos { get; set; } = new();
-    public Clientes? cliente { get; set; }
+    public Cotizaciones cotizacion { get; set; } = new Cotizaciones();
+    public List<Clientes> clientes = new List<Clientes>();
+    public List<Articulos> listaarticulo = new List<Articulos>();
+    public List<CotizacionesDetalle> listacotizaciondetalle { get; set; } = new List<CotizacionesDetalle>();
 
     protected override async Task OnInitializedAsync()
     {
-        cotizacion = await cotizacionesService.Buscar(CotizacionId);
+        // Cargar información de la cotización
+        cotizacion = await cotizacionesService.ObtenerCotizacionesPorId(CotizacionId);
         if (cotizacion != null)
         {
-            ListaCotizacionesDetalle = cotizacion.CotizacionesDetalle.ToList();
-            cliente = await clientesService.Buscar(cotizacion.ClienteId);
-            ListaArticulos = await articulosService.Listar();
+            listacotizaciondetalle = cotizacion.cotizacionesDetalles?.ToList() ?? new List<CotizacionesDetalle>();
+            clientes = await clientesService.ListarClientes();
+            listaarticulo = await articuloService.ListarArticulos();
         }
-    }
-
-    private void Volver()
-    {
-        NavigationManager.NavigateTo("/Cotizacion/Index");
     }
 }

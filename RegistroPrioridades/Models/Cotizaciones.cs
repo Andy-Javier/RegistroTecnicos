@@ -1,17 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace RegistroTecnicos.Models
+namespace RegistroTecnicos.Models;
+
+public class Cotizaciones
 {
-    public class Cotizaciones
-    {
-        [Key]
-        public int CotizacionId { get; set; }
-        public DateTime? Fecha { get; set; }
-        public int ClienteId { get; set; }
-        public string? Observacion { get; set; }
-        public decimal Monto { get; set; }
-        public List<CotizacionesDetalle> CotizacionesDetalle { get; set; } = new List<CotizacionesDetalle>();
-    }
+    [Key]
+    public int CotizacionId { get; set; }
+    [Required(ErrorMessage = "Favor colocar la Fecha.")]
+    public DateTime? Fecha { get; set; } = DateTime.Now;
+    [Required(ErrorMessage = "Favor seleccionar un cliente.")]
+    [ForeignKey("Clientes")]
+    public int? ClienteId { get; set; }
+    public Clientes? Clientes { get; set; }
+    [Required(ErrorMessage = "Favor colocar una observacion.")]
+    public string? Observacion { get; set; }
+    public decimal Monto { get; set; }
+
+    public ICollection<CotizacionesDetalle> cotizacionesDetalles { get; set; }
 }

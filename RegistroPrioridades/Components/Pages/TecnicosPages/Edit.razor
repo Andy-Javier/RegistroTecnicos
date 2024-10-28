@@ -1,98 +1,84 @@
 ﻿@page "/Tecnico/Edit"
 @page "/Tecnico/Edit/{TecnicoId:int}"
-@inject TecnicosService tecnicosServices
-@inject TiposTecnicosService tiposTecnicosServices
+@inject TecnicosService tecnicosService
+@inject TiposTecnicosService tiposTecnicosService
 @inject NavigationManager navigationManager
+@inject ToastService toastService
 @rendermode InteractiveServer
 
 <EditForm Model="tecnicos" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
-    <div class="card">
-        <div class="card-header bg-primary text-white text-center py-2 rounded">
-            <h3> <i class="fas fa-clipboard-list"></i> Modificar T&eacute;cnico</h3>
+    <div class="card shadow-lg border-0" style="background-color white">
+
+        <div class="card-header bg-primary text-center text-white py-2 rounded">
+            <h3 style="font-weight: bold;" class="font-weight-bold">Modificar T&eacute;cnico</h3>
         </div>
 
         <div class="card-body">
-            <!-- TecnicoId -->
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="TecnicoId" class="form-label">T&eacute;cnicoId:</label>
-                    <div class="input-group">
-                        <div style="width: 40%; height: 1em;">
-                            <InputNumber @bind-Value="tecnicos.TecnicoId" class="form-control" style="font-size: 0.8em;" aria-describedby="BotonBuscar" />
-                        </div>
-                        <ValidationMessage For="@(() => tecnicos.TecnicoId)" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Nombres -->
+            @*TecnicoId*@
             <div class="mb-3">
-                <label for="Nombres" class="form-label">Nombre:</label>
-                <InputText @bind-Value="tecnicos.Nombre" class="form-control" />
-                <ValidationMessage For="@(() => tecnicos.Nombre)" />
-                @if (Existe)
-                {
-                    <p class="text-danger">Este nombre est&aacute; en uso.</p>
-                }
+                <label for="TecnicoId" class="form-label">T&eacute;cnicoId:</label>
+                <InputNumber @bind-Value="tecnicos.TecnicoId" class="form-control" />
             </div>
-
-            <!-- SueldoHora -->
+            @*TipoTecnico*@
             <div class="mb-3">
-                <label> SueldoHora </label>
-                <InputNumber @bind-Value="tecnicos.SueldoHora" class="form-control" />
-                <ValidationMessage For="@(() => tecnicos.SueldoHora)" />
+                <label> Tipo de T&eacute;cnico </label>
+                <InputSelect @bind-Value="tecnicos.TipoTecnicoId" class="form-control">
+                    <option value="0">Elija un tipo de t&eacute;cnico</option>
+                    @foreach (var tipo in tiposTecnicos)
+                    {
+                        <option value="@tipo.TipoTecnicoId">@tipo.Descripcion</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => tecnicos.Sueldohora)" />
+            </div>
+            @*Nombres*@
+            <div class="mb-3">
+                <label for="Nombres" class="form-label">Nombres:</label>
+                <InputText @bind-Value="tecnicos.Nombres" class="form-control" />
+                <ValidationMessage For="@(() => tecnicos.Nombres)" />
+            </div>
+            @*SueldoHora*@
+            <div class="mb-3">
+                <label for="SueldoHora" class="form-label">SueldoHora:</label>
+                <InputNumber @bind-Value="tecnicos.Sueldohora" class="form-control" />
+                <ValidationMessage For="@(() => tecnicos.Sueldohora)" />
             </div>
         </div>
 
-        <div class="card-footer bg-light d-flex justify-content-center mt-3">
+        <div class="card-footer d-flex justify-content-lg-center text-center">
             <div class="btn-group">
-                <button type="submit" class="btn btn-outline-success ml-2"><span class="bi bi-check-circle-fill"></span> Guardar </button>
-                <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><span class="bi bi-trash-fill"></span> Eliminar </button>
-                <button type="button" class="btn btn-outline-danger" @onclick="Regresar"><span class="bi bi-arrow-bar-left"></span> Regresar </button>
-            </div>
+                <button type="button" class="btn btn-outline-primary ml-2" @onclick="Nuevo"><span class="bi bi-plus"></span>Nuevo</button>
+                <button type="submit" class="btn btn-outline-success ml-2"><span class="bi bi-check-circle-fill"></span>Guardar</button>
+                <button type="button" class="btn btn-outline-danger" @onclick="Retroceder"><span class="bi bi-arrow-bar-left"></span>Retroceder</button>
 
-    <!-- TiposTecnicos -->
-    <div class="mb-3">
-        <label for="TipoTecnicoId" class="form-label">Tipo de T&eacute;cnico:</label>
-        <InputSelect @bind-Value="tecnicos.TipoTecnicoId" class="form-control">
-            <option value="">Seleccione el tipo de t&eacute;cnico deseado</option>
-            @foreach (var tiposTecnicos in ListaTiposTecnicos)
-            {
-                <option value="@tiposTecnicos.TipoTecnicoId">@tiposTecnicos.Descripcion</option>
-            }
-        </InputSelect>
-        <ValidationMessage For="@(() => tecnicos.TipoTecnicoId)" />
             </div>
         </div>
     </div>
+
 </EditForm>
+
 @code {
     [Parameter]
     public int TecnicoId { get; set; }
     public Tecnicos tecnicos { get; set; } = new Tecnicos();
-    private bool Existe = false;
-    private List<TiposTecnicos> ListaTiposTecnicos { get; set;} = new List<TiposTecnicos>();
+    public List<TiposTecnicos> tiposTecnicos { get; set; } = new List<TiposTecnicos>();
+    List<ToastMessage> mensajeToast = new List<ToastMessage>();
+    private bool existe = false;
 
     protected override async Task OnInitializedAsync()
     {
+        tiposTecnicos = await tiposTecnicosService.Listar(t => true);
         if (TecnicoId != 0)
         {
             await Buscar();
         }
     }
 
-    public void Nuevo()
-    {
-        tecnicos = new Tecnicos();
-        Existe = false;
-    }
-
     public async Task Buscar()
     {
-        Existe = false;
-        var tecnicoEncontrado = await tecnicosServices.Buscar(TecnicoId);
-
+        existe = false;
+        var tecnicoEncontrado = await tecnicosService.Buscar(TecnicoId);
         if (tecnicoEncontrado != null)
         {
             tecnicos = tecnicoEncontrado;
@@ -102,36 +88,44 @@
             Nuevo();
         }
     }
-    public async Task Guardar()
-    {
-        if (await Validar())
-        {
-            return;
-        }
-
-        var guardo = await tecnicosServices.Guardar(tecnicos);
-        if (guardo)
-        {
-            Nuevo();
-        }
-    }
-
-
-    public async Task Eliminar()
-    {
-        var eliminado = await tecnicosServices.Eliminar(tecnicos.TecnicoId);
-        Nuevo();
-    }
-
-    private void Regresar()
-    {
-        navigationManager.NavigateTo("/Tecnico/Index");
-    }
 
     public async Task<bool> Validar()
     {
-        var listaTecnicos = await tecnicosServices.Listar(t => t.Nombre.ToLower() == tecnicos.Nombre.ToLower() && t.TecnicoId != tecnicos.TecnicoId);
-        Existe = listaTecnicos.Any();
-        return Existe;
+        var listaTecnicos = await tecnicosService.Listar(t => t.Nombres.ToLower() == tecnicos.Nombres.ToLower() && t.TecnicoId != tecnicos.TecnicoId);
+        existe = listaTecnicos.Any();
+        return !existe;
+    }
+
+    public async Task Nuevo()
+    {
+        tecnicos = new Tecnicos();
+        existe = false;
+    }
+
+    public async Task Guardar()
+    {
+        if (!await Validar())
+        {
+            toastService.Notify(new(ToastType.Success,
+            iconName: IconName.None,
+            title: "Validacion",
+            helpText: "",
+            message: "Ya Existe un técnico con ese nombre en la consulta."));
+            return;
+        }
+        var guardado = await tecnicosService.Guardar(tecnicos);
+        if (guardado)
+        {
+            toastService.Notify(new(ToastType.Success,
+            iconName: IconName.None,
+            title: "Validacion",
+            helpText: "",
+            message: "Se a modificado el técnico correctamente."));
+            Nuevo();
+        }
+    }
+    public async Task Retroceder()
+    {
+        navigationManager.NavigateTo("/Tecnico/Index");
     }
 }

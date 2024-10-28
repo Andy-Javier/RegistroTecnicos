@@ -1,128 +1,118 @@
-﻿@page "/Trabajos/Details"
-@page "/Trabajos/Details/{TrabajoId:int}"
-@inject TrabajosService trabajosServices
+﻿@page "/Trabajo/Details/{TrabajoId:int}"
+@inject TrabajosService trabajosService
+@inject TecnicosService tecnicosService
+@inject ClientesService clientesService
+@inject PrioridadesService prioridadesService
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
-<PageTitle>Detalles del Trabajo</PageTitle>
+<PageTitle>Detalles</PageTitle>
 
 @if (trabajo != null)
 {
     <div class="container">
         <div class="card shadow-header">
-            <div class="card-header bg-primary text-white text-center py-2 rounded">
-                <h3 class="text-center"><strong>Detalles del Trabajo</strong></h3>
+            <div class="card-header bg-primary text-white py-2 rounded">
+                <h5 style="font-weight: bold;" class="font-weight-bold">Detalles del Trabajo</h5>
             </div>
             <div class="container">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="card-body">
                             <ul class="list-unstyled">
-                                <li><strong>TrabajoId:</strong> @trabajo?.TrabajoId</li>
-                                <li><strong>Fecha:</strong> @trabajo?.Fecha.ToString("dd/MM/yyyy")</li>
-                                <li><strong>Cliente:</strong> @trabajo?.Cliente?.Nombres</li>
-                                <li><strong>Técnico:</strong> @trabajo?.Tecnico?.Nombre</li>
-                                <li><strong>Descripción:</strong> @trabajo?.Descripcion</li>
-                                <li><strong>Monto:</strong> @trabajo?.Monto.ToString("C")</li>
+                                <li><strong>TrabajoId:</strong> @trabajo.TrabajoId</li>
+                                <li><strong>Fecha:</strong> @trabajo.Fecha.ToShortDateString()</li>
+                                <li><strong>Cliente:</strong> @cliente?.Nombres ?? "No disponible"</li>
+                                <li><strong>Técnico:</strong> @tecnico?.Nombres ?? "No disponible"</li>
+                                <li><strong>Prioridad:</strong> @prioridad?.Descripcion ?? "No disponible"</li>
+                                <li><strong>Descripción:</strong> @trabajo.Descripcion</li>
+                                <li><strong>Monto:</strong> @trabajo.Monto</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                @* Detalles de artículos utilizados *@
-                <div class="row">
-                    <div class="col-md-12">
-                        <h5>Detalles de Artículos Utilizados</h5>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Artículo</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (trabajo != null)
-                                {
-                                    <div class="container">
-                                        <div class="card-body">
-                                            <ul class="list-unstyled">
-                                                <li><strong>TrabajoId:</strong> @trabajo?.TrabajoId</li>
-                                                <li><strong>Fecha:</strong> @trabajo?.Fecha.ToString("dd/MM/yyyy")</li>
-                                                <li><strong>Cliente:</strong> @trabajo?.Cliente?.Nombres</li>
-                                                <li><strong>Técnico:</strong> @trabajo?.Tecnico?.Nombre</li>
-                                                <li><strong>Descripción:</strong> @trabajo?.Descripcion</li>
-                                                <li><strong>Monto:</strong> @trabajo?.Monto.ToString("C")</li> 
-                                            </ul>
-                                        </div>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <p>Trabajo no encontrado.</p>
-                                }
-
-                            </tbody>
-                        </table>
+                <div class="card mt-6 border-success">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="font-weight-bold">Detalles de artículos utilizados</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (listatrabajodetalle != null && listatrabajodetalle.Any())
+                        {
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered text-center">
+                                    <thead class="bg-primary text-white">
+                                        <tr>
+                                            <th>Artículo</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var detalle in listatrabajodetalle)
+                                        {
+                                            var articulo = listaarticulo.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId);
+                                            <tr>
+                                                <td>@(articulo?.Descripcion ?? "Artículo no encontrado")</td>
+                                                <td>@detalle.Cantidad</td>
+                                                <td>@detalle.Precio.ToString("C")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p>No se han registrado artículos para este trabajo.</p>
+                        }
                     </div>
                 </div>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-                <button class="btn btn-success" @onclick="EnviarWhatsApp">
-                    <i class="bi bi-whatsapp"></i> Enviar WhatsApp
-                </button>
 
-                @* Mensaje de notificación *@
-                @if (!string.IsNullOrEmpty(notificacion))
-                {
-                    <div class="alert alert-info mt-3">@notificacion</div>
-                }
-
-                <button type="button" class="btn btn-primary" @onclick="Volver">
-                    <i class="bi bi-arrow-left-square-fill"></i> Volver
-                </button>
+                <div class="card-footer text-center">
+                    <a href="/Trabajo/Index" class="btn btn-outline-primary mx-2">
+                        <span class="bi bi-box-arrow-left"></span> Retroceder
+                    </a>
+                    <a href=@($"https://wa.me/{cliente?.WhatsApp}?text={ObtenerMensajeFinalizar()}") class="btn btn-outline-success mx-2">
+                        <span class="bi bi-whatsapp"></span> Finalizar
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-}
-else
-{
-    <p>Trabajo no encontrado.</p>
 }
 
 @code {
     [Parameter]
     public int TrabajoId { get; set; }
     public Trabajos? trabajo { get; set; }
-    private string? notificacion;
+    public Clientes? cliente { get; set; }
+    public Tecnicos? tecnico { get; set; }
+    public Prioridades? prioridad { get; set; }
+    public List<TrabajosDetalle> listatrabajodetalle { get; set; } = new List<TrabajosDetalle>();
+    public List<Articulos> listaarticulo { get; set; } = new List<Articulos>();
 
     protected override async Task OnInitializedAsync()
     {
-        trabajo = await trabajosServices.Buscar(TrabajoId);
-        if (trabajo == null)
+        await CargarTrabajoYDetalles();
+    }
+
+    private async Task CargarTrabajoYDetalles()
+    {
+        trabajo = await trabajosService.Buscar(TrabajoId);
+
+        if (trabajo != null)
         {
-            navigationManager.NavigateTo("/Trabajos/Index");
+            cliente = trabajo.ClienteId.HasValue ? await clientesService.Buscar(trabajo.ClienteId.Value) : null;
+            tecnico = trabajo.TecnicoId.HasValue ? await tecnicosService.Buscar(trabajo.TecnicoId.Value) : null;
+            prioridad = trabajo.PrioridadId.HasValue ? await prioridadesService.Buscar(trabajo.PrioridadId.Value) : null;
+            listatrabajodetalle = await trabajosService.ObtenerDetalles(TrabajoId);
+            listaarticulo = await trabajosService.ListarArticulos();
         }
     }
 
-    public void Volver()
+    private string ObtenerMensajeFinalizar()
     {
-        navigationManager.NavigateTo("/Trabajos/Index");
-    }
-
-    public void EnviarWhatsApp()
-    {
-        if (trabajo?.Cliente != null && !string.IsNullOrEmpty(trabajo.Cliente.WhatsApp))
-        {
-            var mensaje = $"Hola {trabajo.Cliente.Nombres}, su trabajo '{trabajo.Descripcion}' ha sido completado. El total es {trabajo.Monto:C}. ¡Gracias por preferir el servicio de tecnicos de Andy!";
-            var urlWhatsApp = $"https://wa.me/{trabajo.Cliente.WhatsApp.Replace(" ", "")}?text={Uri.EscapeDataString(mensaje)}";
-
-            navigationManager.NavigateTo(urlWhatsApp, forceLoad: true);
-            notificacion = "Mensaje enviado correctamente.";
-        }
-        else
-        {
-            notificacion = "Error: No se pudo enviar el mensaje. El cliente no tiene un número de WhatsApp registrado.";
-        }
+        return $"El trabajo de {cliente?.Nombres} ya está finalizado.";
     }
 }

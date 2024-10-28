@@ -1,113 +1,111 @@
 ﻿@page "/Cotizacion/Index"
 @inject CotizacionesService cotizacionesService
-@inject ClientesService ClientesService
-@inject NavigationManager NavigationManager
-@using System.Linq.Expressions
+@inject ClientesService clientesService
+@inject NavigationManager navigationManager
 @rendermode InteractiveServer
 
+<PageTitle>Consulta de Cotizaci&oacute;nes</PageTitle>
+
 <div class="container">
-    <div class="card shadow-lg mt-3">
-        <div class="card-header text-center">
-            <h5>Registro de Cotizaci&oacute;nes</h5>
+    <div class="card shadow-lg">
+        <div class="card-header d-flex justify-content-between">
+            <h5 class="card-title">Consulta de cotizaci&oacute;nes</h5>
+            <a href="/Cotizacion/Create" class="btn btn-primary">
+                <span class="bi bi-plus-square mt-3"></span> Crear
+            </a>
         </div>
-        <div class="card-body">
-            <div class="row md-3 align-content-center">
-                <div class="col-md-3">
-                    <label for="filtro" class="form-label"><strong>Filtrar Por:</strong></label>
-                    <select @bind="filtro" class="form-select">
-                        <option value="id">Cotizaci&oacute;nId</option>
-                        <option value="Observacion">Observaci&oacute;n</option>
-                        <option value="Monto">Monto</option>
-                        <option value="Cliente">Cliente</option>
-                        <option value="Fecha">Fecha</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="valorfiltro" class="form-label"><strong>Busqueda:</strong></label>
-                    <div class="input-group">
-                        <input @bind="valorfiltro" class="form-control" />
-                        <button type="button" @onclick="Buscar" class="btn btn-outline-primary">
-                            <span class="bi bi-search mt-3"></span>
-                            Buscar
-                        </button>
-                        <button type="button" @onclick="Restablecer" class="btn btn-outline-success">
-                            <span class="bi bi-arrow-clockwise mt-3"></span>
-                            Restablecer
-                        </button>
-                    </div>
-                </div>
 
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="fechaInicial" class="form-label"><strong>Fecha Iniciar:</strong></label>
-                            <input type="date" @bind="Desde" class="form-control" />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="fechaFinal" class="form-label"><strong>Fecha Final:</strong></label>
-                            <input type="date" @bind="Hasta" class="form-control" />
-                        </div>
-                    </div>
-                </div>
+        <div class="row mb-3 align-items-end">
+            <div class="col-md-3">
+                <label for="Filtro" class="form-label">Filtrar por:</label>
+                <select @bind="filtro" class="form-select">
+                    <option value="ID">Cotizaci&oacute;nId</option>
+                    <option value="Fecha">Fecha</option>
+                    <option value="Cliente">Cliente</option>
+                </select>
             </div>
 
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-15 text-end">
-                        <a type="button" href="/Cotizacion/Create" class="btn btn-outline-success">
-                            <span class="bi bi-pencil-square mt-3"></span>
-                            Crear
-                        </a>
-                    </div>
+            <div class="col-md-6">
+                <label for="ValorFiltro" class="form-label">B&uacute;squeda:</label>
+                <div class="input-group">
+                    <input @bind="valorFiltro" class="form-control" placeholder="Buscar" />
+                    <button @onclick="Buscar" class="btn btn-outline-primary" type="button">
+                        <span class="bi bi-search"></span> Buscar
+                    </button>
+                    <button @onclick="Restablecer" class="btn btn-outline-secondary" type="button">
+                        <span class="bi bi-arrow-clockwise"></span> Restablecer
+                    </button>
                 </div>
             </div>
-            <table class="table table-light table-bordered">
-                <thead class="table table-striped text-center">
+        </div>
+
+        @*Campos de fecha Desde y Hasta *@
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="Desde" class="form-label">Desde:</label>
+                <InputDate @bind-Value="Desde" class="form-control" Culture="es-ES" />
+            </div>
+            <div class="col-md-3">
+                <label for="Hasta" class="form-label">Hasta:</label>
+                <InputDate @bind-Value="Hasta" class="form-control" Culture="es-ES" />
+            </div>
+        </div>
+
+        @* Tabla de cotizaciones *@
+        <table class="table table-bordered text-center">
+            <thead class="border-primary text-white">
+                <tr>
+                    <th>Cotizaci&oacute;nId</th>
+                    <th>Fecha</th>
+                    <th>ClienteId</th>
+                    <th>Observaci&oacute;n</th>
+                    <th>Monto</th>
+                    <th>Ver</th>
+                    <th>Modificar</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cotizacion in Listacotizacion)
+                {
                     <tr>
-                        <th>Cotizaci&oacute;nId</th>
-                        <th>Fecha</th>
-                        <th>ClienteId</th>
-                        <th>Observaci&oacute;n</th>
-                        <th>Monto</th>
-                        <th>Ver</th>
-                        <th>Modificar</th>
-                        <th>Eliminar</th>
+                        <td>@cotizacion.CotizacionId</td>
+                        <td>@(cotizacion.Fecha.HasValue ? cotizacion.Fecha.Value.ToString("dd/MM/yyyy") : "")</td>
+                        <td>@cotizacion.Clientes?.Nombres</td>
+                        <td>@cotizacion.Observacion</td>
+                        <td>@cotizacion.Monto</td>
+
+                        <td>
+                            <a href="/Cotizacion/Details/@cotizacion.CotizacionId" class="btn btn-outline-primary"><span class="bi bi-info-circle-fill"></span></a>
+                        </td>
+
+                        <td>
+                            <a href="/Cotizacion/Edit/@cotizacion.CotizacionId" class="btn btn-outline-success"><span class="bi bi-marker-tip"></span></a>
+                        </td>
+
+                        <td>
+                            <a href="/Cotizacion/Delete/@cotizacion.CotizacionId" class="btn btn-outline-warning"><span class="bi bi-dash-circle-fill"></span></a>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var c in Listacotizacion)
-                    {
-                        <tr>
-                            <td>@c.CotizacionId</td>
-                            <td>@(c.Fecha.HasValue ? c.Fecha.Value.ToString("dd/MM/yyyy") : "No disponible")</td>
-                            <td>@c.ClienteId</td>
-                            <td>@c.Observacion</td>
-                            <td>@c.Monto.ToString("C")</td>
-                            <td class="text-center">
-                                <a href="/Cotizacion/Details/@c.CotizacionId" class="btn btn-outline-primary  bi bi-eye mt-3"></a>
-                            </td>
-                            <td class="text-center">
-                                <a href="/Cotizacion/Edit/@c.CotizacionId" class="btn btn-outline-success  bi bi-pencil-square mt-3"></a>
-                            </td>
-                            <td class="text-center">
-                                <a href="/Cotizacion/Delete/@c.CotizacionId" class="btn btn-outline-danger  bi bi-trash mt-3"></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-        <div class="card-footer">
-            <p>Total: @Listacotizacion.Count</p>
+                }
+            </tbody>
+        </table>
+
+        <div class="card-footer text-start">
+            <p>Total de cotizaci&oacute;nes: @Listacotizacion.Count</p>
+            <div class="col-12 text-end ">
+                <label class="ms-5"><strong>Total</strong>$@Listacotizacion.Sum(c => c.Monto).ToString("N2")</label>
+            </div>
         </div>
     </div>
 </div>
 
 @code {
     public Cotizaciones cotizacion { get; set; } = new Cotizaciones();
+    public Clientes cliente { get; set; } = new Clientes();
     public List<Cotizaciones> Listacotizacion { get; set; } = new List<Cotizaciones>();
-    public string filtro = "id";
-    public string valorfiltro = "";
+    public string filtro = "ID";
+    public string valorFiltro = "";
     public DateTime? Desde { get; set; }
     public DateTime? Hasta { get; set; }
 
@@ -118,69 +116,39 @@
 
     public async Task Buscar()
     {
-        Expression<Func<Cotizaciones, bool>> predicate = c => true;
-
-        if (!string.IsNullOrWhiteSpace(valorfiltro))
+        if (string.IsNullOrWhiteSpace(valorFiltro) && !Desde.HasValue && !Hasta.HasValue)
         {
-            if (filtro == "id" && int.TryParse(valorfiltro, out int CotizacionId))
+            Listacotizacion = await cotizacionesService.Listar(t => true);
+        }
+        else
+        {
+            if (filtro == "ID" && int.TryParse(valorFiltro, out int cotizacionId))
             {
-                predicate = c => c.CotizacionId == CotizacionId;
-            }
-            else if (filtro == "Observacion")
-            {
-                predicate = c => c.Observacion.Contains(valorfiltro);
-            }
-            else if (filtro == "Monto" && decimal.TryParse(valorfiltro, out decimal Monto))
-            {
-                predicate = c => c.Monto == Monto;
+                Listacotizacion = await cotizacionesService.Listar(c => c.CotizacionId == cotizacionId);
             }
             else if (filtro == "Cliente")
             {
-                var cliente = await ClientesService.BuscarPorNombre(valorfiltro);
-                if (cliente != null)
-                {
-                    predicate = c => c.ClienteId == cliente.ClienteId;
-                }
-                else
-                {
-                    Listacotizacion = new List<Cotizaciones>(); 
-                    return;
-                }
+                var cliente = await clientesService.BuscarPorNombre(valorFiltro);
+                Listacotizacion = cliente != null
+                    ? await cotizacionesService.Listar(c => c.ClienteId == cliente.ClienteId)
+                    : new List<Cotizaciones>();
+            }
+            else if (filtro == "Fecha")
+            {
+                Listacotizacion = await cotizacionesService.Listar(c =>
+                    c.Fecha.HasValue &&
+                    (!Desde.HasValue || c.Fecha.Value >= Desde) &&
+                    (!Hasta.HasValue || c.Fecha.Value <= Hasta));
             }
         }
-
-        if (Desde.HasValue || Hasta.HasValue)
-        {
-            var datePredicate = (Expression<Func<Cotizaciones, bool>>)(c =>
-                c.Fecha.HasValue &&
-                (!Desde.HasValue || c.Fecha.Value >= Desde) &&
-                (!Hasta.HasValue || c.Fecha.Value <= Hasta));
-
-            predicate = CombineExpressions(predicate, datePredicate);
-        }
-
-        Listacotizacion = await cotizacionesService.Listar(predicate);
     }
 
     public async Task Restablecer()
     {
-        filtro = "id";
-        valorfiltro = "";
+        filtro = "ID";
+        valorFiltro = "";
         Desde = null;
         Hasta = null;
         Listacotizacion = await cotizacionesService.Listar(c => true);
-    }
-
-    private static Expression<Func<T, bool>> CombineExpressions<T>(
-        Expression<Func<T, bool>> expr1,
-        Expression<Func<T, bool>> expr2)
-    {
-        var parameter = Expression.Parameter(typeof(T));
-
-        var combinedBody = Expression.AndAlso(
-            Expression.Invoke(expr1, parameter),
-            Expression.Invoke(expr2, parameter));
-
-        return Expression.Lambda<Func<T, bool>>(combinedBody, parameter);
     }
 }

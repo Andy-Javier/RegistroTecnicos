@@ -1,198 +1,141 @@
-﻿@page "/Trabajos/Delete"
-@page "/Trabajos/Delete/{TrabajoId:int}"
-@inject ClientesService clientesService
-@inject TecnicosService tecnicosService
+﻿@page "/Trabajo/Delete/{TrabajoId:int}"
 @inject TrabajosService trabajosService
+@inject TecnicosService tecnicosService
+@inject ClientesService clientesService
 @inject PrioridadesService prioridadesService
 @inject ArticuloService articuloService
 @inject NavigationManager navigationManager
+@inject ToastService toastService
 @rendermode InteractiveServer
 
+<PageTitle>Eliminar Trabajo</PageTitle>
+
 <div class="container">
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white text-center">
-            <h5><strong>Eliminar Trabajo</strong></h5>
+    <div class="card shadow-header">
+        <div class="card-header bg-primary  text-white py-2 rounded">
+            <h5 style="font-weight: bold;" class="font-weight-bold">Eliminar Trabajo</h5>
         </div>
-
-        <div class="container mt-3">
-            <div class="card-body">
-                @*   TrabajoId *@
-                <div class="mb-3 row">
-                    <label for="TrabajoId" class="col-md-2 text-end col-form-label"><strong>TrabajoId:</strong></label>
-                    <div class="col-md-1">
-                        <p class="form-control-plaintext">@trabajo?.TrabajoId</p>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><strong>TrabajoId:</strong> @trabajo.TrabajoId</li>
+                            <li><strong>Fecha:</strong> @trabajo.Fecha.ToShortDateString()</li>
+                            <li><strong>Cliente:</strong> @cliente.Nombres</li>
+                            <li><strong>Técnico:</strong> @tecnico.Nombres</li>
+                            <li><strong>Prioridad:</strong> @prioridad.Descripcion</li>
+                            <li><strong>Descripción:</strong> @trabajo.Descripcion</li>
+                            <li><strong>Monto:</strong> @trabajo.Monto</li>
+                        </ul>
                     </div>
                 </div>
+            </div>
 
-                @*   Fecha *@
-                <div class="mb-3 row">
-                    <label for="Fecha" class="col-md-2 text-end col-form-label"><strong>Fecha:</strong></label>
-                    <div class="col-md-3">
-                        <p class="form-control-plaintext">@trabajo?.Fecha</p>
-                    </div>
+            <div class="card mt-6 border-success">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="font-weight-bold">Detalles de artículos utilizados</h5>
                 </div>
-
-                @* ClienteId *@
-                <div class="mb-3 row">
-                    <label for="ClienteId" class="col-md-2 text-end col-form-label"><strong>ClienteId:</strong></label>
-                    <div class="col-md-4">
-                        <p class="form-control-plaintext">@cliente?.Nombres</p>
-                    </div>
-                </div>
-
-                @* TecnicoId *@
-                <div class="mb-3 row">
-                    <label for="TecnicoId" class="col-md-2 text-end col-form-label"><strong>TecnicoId:</strong></label>
-                    <div class="col-md-4">
-                        <p class="form-control-plaintext">@tecnico?.Nombre</p>
-                    </div>
-                </div>
-
-                @* PrioridadId  *@
-                <div class="mb-3 row">
-                    <label for="PrioridadId" class="col-md-2 text-end col-form-label"><strong>PrioridadId:</strong></label>
-                    <div class="col-md-2">
-                        <p class="form-control-plaintext">@prioridad?.Descripcion</p>
-                    </div>
-                </div>
-
-                @*  Descripcion *@
-                <div class="mb-3 row">
-                    <label for="Descripcion" class="col-md-2 text-end col-form-label"><strong>Descripci&oacute;n:</strong></label>
-                    <div class="col-md-4">
-                        <p class="form-control-plaintext">@trabajo?.Descripcion</p>
-                    </div>
-                </div>
-
-                @*  Monto *@
-                <div class="mb-3 row">
-                    <label for="Monto" class="col-md-2 text-end col-form-label"><strong>Monto:</strong></label>
-                    <div class="col-md-2">
-                        <p class="form-control-plaintext">@trabajo?.Monto.ToString("C")</p>
-                    </div>
-                </div>
-
-                <div class="border border-success p-3 mt-3">
-                    <h5 class="card-header">Detalle TrabajosDetalle</h5>
-
-                    <table class="table table-light table-bordered mt-3">
-                        <thead class="table table-striped text-center">
-                            <tr>
-                                <th>ArticuloId</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach (var detalle in trabajo.TrabajosDetalle)
-                            {
-                                var descripcionArticulo = ListaArticulos.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId)?.Descripcion ?? "No encontrado";
+                <div class="card-body">
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered text-center">
+                            <thead class="bg-primary text-white">
                                 <tr>
-                                    <td>@descripcionArticulo</td>
-                                    <td>@detalle.Cantidad</td>
-                                    <td>@detalle.Precio.ToString("C")</td>
+                                    <th>Artículo</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="card-footer text-center">
-                    <button type="button" class="btn btn-outline-danger" @onclick="() => MostrarConfirmacionEliminar()">
-                        <span class="bi bi-trash"></span> Eliminar
-                    </button>
-                    <button type="button" class="btn btn-outline-primary" @onclick="Volver">
-                        <span class="bi bi-arrow-left"></span> Volver
-                    </button>
-                </div>
-
-                @if (eliminado)
-                {
-                    <div class="alert alert-success" role="alert">
-                        El trabajo ha sido eliminado correctamente.
+                            </thead>
+                            <tbody>
+                                @foreach (var detalle in listatrabajodetalle)
+                                {
+                                    var articulo = listaarticulo.FirstOrDefault(a => a.ArticuloId == detalle.ArticuloId);
+                                    <tr>
+                                        <td>@(articulo?.Descripcion ?? "Artículo no encontrado")</td>
+                                        <td>@detalle.Cantidad</td>
+                                        <td>@detalle.Precio.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
-                }
+                </div>
+            </div>
+
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-outline-danger" @onclick="EliminarTrabajo">
+                    <i class="bi bi-trash-fill"></i> Eliminar
+                </button>
+                <button type="button" class="btn btn-outline-primary" @onclick="Retroceder">
+                    <i class="bi bi-box-arrow-left"></i> Retroceder
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-@if (trabajo == null)
-{
-    <p class="text-danger text-center">Trabajo no encontrado.</p>
-}
-
 @code {
     [Parameter]
     public int TrabajoId { get; set; }
-    public Trabajos? trabajo { get; set; }
-    public Tecnicos? tecnico { get; set; }
-    public Clientes? cliente { get; set; }
-    public Prioridades? prioridad { get; set; }
-    public List<TrabajosDetalle> Listatrabajodetalle { get; set; } = new List<TrabajosDetalle>();
+    public Trabajos trabajo { get; set; } = new Trabajos();
+    public List<TrabajosDetalle> listatrabajodetalle { get; set; } = new List<TrabajosDetalle>();
     public Articulos articulos { get; set; } = new Articulos();
+    public List<Articulos> listaarticulo = new List<Articulos>();
     public TrabajosDetalle trabajosDetalle { get; set; } = new TrabajosDetalle();
-    public List<Articulos> ListaArticulos { get; set; } = new List<Articulos>();
-    private bool eliminado = false;
-    private bool mostrarModalConfirmacion = false; 
+    public Clientes cliente { get; set; } = new Clientes();
+    public Tecnicos tecnico { get; set; } = new Tecnicos();
+    public Prioridades prioridad { get; set; } = new Prioridades();
+
     protected override async Task OnInitializedAsync()
     {
-        if (TrabajoId != 0)
+        await CargarTrabajoYDetalles();
+        trabajo = await trabajosService.Buscar(TrabajoId);
+        listatrabajodetalle = await trabajosService.ListarDetalles(TrabajoId);
+        listaarticulo = await trabajosService.ListarArticulos();
+    }
+
+    private async Task CargarTrabajoYDetalles()
+    {
+        trabajo = await trabajosService.Buscar(TrabajoId);
+
+        if (trabajo != null)
         {
-            trabajo = await trabajosService.Buscar(TrabajoId);
-            if (trabajo != null)
-            {
-                cliente = await clientesService.Buscar(trabajo.ClienteId);
-                tecnico = await tecnicosService.Buscar(trabajo.TecnicoId);
-                prioridad = await prioridadesService.Buscar(trabajo.PrioridadId);
-                ListaArticulos = await articuloService.Listar();
-            }
+            cliente = trabajo.ClienteId.HasValue ? await clientesService.Buscar(trabajo.ClienteId.Value) : null;
+            tecnico = trabajo.TecnicoId.HasValue ? await tecnicosService.Buscar(trabajo.TecnicoId.Value) : null;
+            prioridad = trabajo.PrioridadId.HasValue ? await prioridadesService.Buscar(trabajo.PrioridadId.Value) : null;
+            listatrabajodetalle = await trabajosService.ObtenerDetalles(TrabajoId);
+            listaarticulo = await trabajosService.ListarArticulos();
         }
     }
 
     public async Task EliminarTrabajo()
     {
-        if (TrabajoId == 0 || trabajo == null) return;
-
-        try
+        if (TrabajoId == 0 || trabajo == null)
         {
-            var detalles = trabajo.TrabajosDetalle;
+            return;
+        }
 
-            if (await trabajosService.Eliminar(TrabajoId))
+        var detalles = await trabajosService.ListarDetalles(TrabajoId);
+
+        if (await trabajosService.Eliminar(TrabajoId))
+        {
+            // Restaurar cantidades de los artículos
+            foreach (var detalle in detalles)
             {
-                foreach (var detalle in detalles)
-                {
-                    await articuloService.AgregarCantidad(detalle.ArticuloId, detalle.Cantidad);
-                }
-                eliminado = true;
-                navigationManager.NavigateTo("/Trabajos/Index"); 
+                await articuloService.AgregarCantidad(detalle.ArticuloId, detalle.Cantidad);
             }
+
+            toastService.Notify(new(ToastType.Success,
+            iconName: IconName.None,
+            title: "Validación",
+            helpText: "",
+            message: "El trabajo se ha eliminado correctamente."));
+            Retroceder();
         }
-        catch (Exception ex)
-        {
-            // Mostrar mensaje de error aquí
-        }
     }
 
-    public void MostrarConfirmacionEliminar()
+    public async Task Retroceder()
     {
-        mostrarModalConfirmacion = true; 
-    }
-
-    public async Task ConfirmarEliminar()
-    {
-        await EliminarTrabajo();
-        mostrarModalConfirmacion = false;
-    }
-
-    public void CancelarEliminar()
-    {
-        mostrarModalConfirmacion = false;
-    }
-
-    public async Task Volver()
-    {
-        navigationManager.NavigateTo("/Trabajos/Index");
+        navigationManager.NavigateTo("/Trabajo/Index");
     }
 }

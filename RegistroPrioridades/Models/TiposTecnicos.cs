@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
-namespace RegistroTecnicos.Models
+using System.Linq.Expressions;
+
+namespace RegistroTecnicos.Models;
+
+public class TiposTecnicos
 {
-    public class TiposTecnicos
-    {
-        [Key]
-        public int TipoTecnicoId { get; set; }
+    [Key]
+    public int TipoTecnicoId { get; set; }
+    [Required(ErrorMessage = "Llenar este campo por favor.")]
+    public string? Descripcion { get; set; }
 
-        [Required(ErrorMessage = "Campo Obligatorio")]
-        [RegularExpression(@"[a-zA-Z\s]+$", ErrorMessage = "Solo son permitidas las letras")]
-        public string? Descripcion { get; set; }
-
-        public ICollection<Tecnicos>? Tecnicos { get; set; }
-    }
+    public ICollection<Tecnicos>? Tecnicos { get; set; }
 }

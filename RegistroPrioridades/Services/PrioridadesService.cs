@@ -1,55 +1,60 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegistroTecnicos.DAL;
 using RegistroTecnicos.Models;
+using System.Drawing;
 using System.Linq.Expressions;
 
 namespace RegistroTecnicos.Services;
+
 public class PrioridadesService(IDbContextFactory<Contexto> DbFactory)
 {
+    //Metodo el cual Nos Identifica si esa prioridad si ya esta registrada en la base de datos
+    public async Task<bool> ExistePrioridad(string descripcion, int id)
+    {
+        await using var contexto = await DbFactory.CreateDbContextAsync();
+        return await contexto.Prioridades
+            .AnyAsync(p => p.Descripcion.ToLower().Equals(descripcion.ToLower()) || p.Descripcion.ToLower().Equals(descripcion.ToLower()) && p.PrioridadId != id);
+    }
 
-    //Metodo del existe
+    //Metodo Existe
     public async Task<bool> Existe(int prioridadId)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
         return await contexto.Prioridades.AnyAsync(p => p.PrioridadId == prioridadId);
     }
-    // Método del Insertar
-    private async Task<bool> Insertar(Prioridades prioridades)
+    //Metodo Insertar
+    private async Task<bool> Insertar(Prioridades prioridad)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        contexto.Prioridades.Add(prioridades);
+        contexto.Prioridades.Add(prioridad);
         return await contexto.SaveChangesAsync() > 0;
     }
-
-    // Método del Modificar
-    public async Task<bool> Modificar(Prioridades prioridad) // Cambiado a public
+    //Metodo Modificar
+    private async Task<bool> Modificar(Prioridades prioridad)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        contexto.Prioridades.Update(prioridad);
+        contexto.Update(prioridad);
         return await contexto.SaveChangesAsync() > 0;
     }
-    //Metodo el Guardar
+    //Metodo Guardar
     public async Task<bool> Guardar(Prioridades prioridad)
     {
+        await using var contexto = await DbFactory.CreateDbContextAsync();
         if (!await Existe(prioridad.PrioridadId))
-        {
             return await Insertar(prioridad);
-        }
         else
-        {
             return await Modificar(prioridad);
-        }
     }
     //Metodo Eliminar
     public async Task<bool> Eliminar(int id)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
-        var eliminado = await contexto.Prioridades
+        var eliminar = await contexto.Prioridades
             .Where(p => p.PrioridadId == id)
             .ExecuteDeleteAsync();
-        return eliminado > 0;
+        return eliminar > 0;
     }
-    //Metodo del Buscar
+    //Metodo Buscar 
     public async Task<Prioridades?> Buscar(int id)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
@@ -57,13 +62,13 @@ public class PrioridadesService(IDbContextFactory<Contexto> DbFactory)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.PrioridadId == id);
     }
-    //Metodo del listar
-    public async Task<List<Prioridades>> Listar(Expression<Func<Prioridades, bool>> Criterio)
+    //Metodo Listar
+    public async Task<List<Prioridades>> Listar(Expression<Func<Prioridades, bool>> criterio)
     {
         await using var contexto = await DbFactory.CreateDbContextAsync();
         return await contexto.Prioridades
             .AsNoTracking()
-            .Where(Criterio)
+            .Where(criterio)
             .ToListAsync();
     }
 }
